@@ -2,13 +2,52 @@
 
 Gemensam Claude Code-plugin för ReseApoteket, Dagboken och fonder. Här ligger det som
 är generellt för de tre Android-repona: Kotlin, Compose, Navigation 3 och arbetssättet
-kring issues och PR:er. Det som är eget för ett repo stannar i repots `.claude/`.
+kring issues och PR:er. Det som är eget för ett repo stannar i repots `.claude/`, och där
+de krockar gäller repots CLAUDE.md.
 
-Lokalt installeras den med
+## Skills
+
+Skillsen anropas som `android:<namn>`.
+
+| Skill | När |
+|---|---|
+| `android-dev` | Baslinje för allt Android/Kotlin-arbete, med plattformskraven (targetSdk 36, Material 3 beta/stabil, Baseline Profile, ktlint via Spotless, Renovate/Dependabot). |
+| `compose-expert` | Compose: state, stabilitet (`@Immutable` UiState med listor), `key`/`contentType` i listor. |
+| `kotlin-coroutines` | Coroutines; dispatchers injiceras, `Dispatchers.` bara i `di/`. |
+| `kotlin-flows` | Flows; engångshändelser i UiState som UI:t kvitterar. |
+| `accessibility-compose` | TalkBack, tryckytor, stor text, färg och diagram. |
+| `android-gradle-logic` | Versionskatalog, delad byggkonfiguration, convention plugins. |
+| `firebase-auth` | Google-inloggning med Credential Manager + Firebase Auth. |
+| `mockup` | Mockup före ny GUI. |
+| `navigation-3` | *Googles.* Navigation 3: djuplänkar, flera stackar, scener. |
+| `android-intent-security` | *Googles.* Exporterade komponenter och Intents. |
+| `firebase-security-rules-auditor` | *Googles.* Granska `firestore.rules`. |
+
+Googles skills är oförändrade kopior med källa och licens i sina `SOURCE.md`.
+
+## Installation
+
+### I molnsessioner (claude.ai/code)
+
+Molnsessioner installerar **aldrig** ett repos `enabledPlugins`, och setup-steget når inte
+privata repon över https. Pluginen installeras därför av miljöns setup-skript från den lokala
+klonen – repot ska ligga i projektets repolista så att det klonas till `/home/user/claude-android`:
+
+```bash
+{
+  claude plugin marketplace add /home/user/claude-android &&
+  claude plugin install android@claude-android
+} >> /tmp/plugin-setup.log 2>&1 || true
+```
+
+`|| true` är nödvändigt: ett setup-skript som felar stoppar alla nya sessioner. Gick något fel
+står det i `/tmp/plugin-setup.log`.
+
+### Lokalt
 
     /plugin install android --marketplace ParTee71/claude-android
 
-Ett repo slår på pluginen i `.claude/settings.json`:
+eller låt repot slå på pluginen i `.claude/settings.json`, vilket fungerar lokalt:
 
 ```json
 {
@@ -18,5 +57,3 @@ Ett repo slår på pluginen i `.claude/settings.json`:
   "enabledPlugins": { "android@claude-android": true }
 }
 ```
-
-Skillsen anropas då som `android:<namn>`, till exempel `android:navigation-3`.
