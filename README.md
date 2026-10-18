@@ -34,6 +34,17 @@ repots skill `android-projekt` under avsnitten **Issues**, **Arbetsflöde** och 
 skillsen hänvisar till repots egna `ci-budget`, `testing-strategy`, `requirements-kravlista`,
 `data-safety-backup`, `shared-ui-components` och `ui-style`.
 
+## Hook
+
+`hooks/regel4-dispatch.mjs` kör regel 4-kontrollen (PostToolUse efter Edit/Write, Stop före turens
+slut) när sessionens projektrot är en gemensam katalog med flera repon under sig, som i molnsessioner
+med `/home/user`. Då laddas inget repos `.claude/settings.json`. Pluginen har inga egna mönster: den
+lämnar varje händelse till repots egen `.claude/hooks/regel4-check.mjs`. Det skriptet och dess
+mönsterfiler stannar i repot, eftersom repots CI-hooktest och `UiConsistencyTest` läser dem och CI inte
+når den privata pluginen. Är projektroten själv ett repo med egen hook gör pluginen ingenting.
+
+    node --test plugins/android/hooks/test/*.test.mjs
+
 ## Installation
 
 ### I molnsessioner (claude.ai/code)
