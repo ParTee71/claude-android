@@ -19,11 +19,20 @@ Skillsen anropas som `android:<namn>`.
 | `android-gradle-logic` | Versionskatalog, delad byggkonfiguration, convention plugins. |
 | `firebase-auth` | Google-inloggning med Credential Manager + Firebase Auth. |
 | `mockup` | Mockup före ny GUI. |
+| `refine-issue` | Idé eller bugg till ett förfinat issue med Definition of Done och **Agent · modell · effort**. |
+| `implement-issue` | Issue till mergad PR: en PR i taget, mockup-grind, tester, versionshöjning, granskare + `/code-review` i rundor. |
+| `release` | Versionshöjningen i funktions-PR:en och releasen via `workflow_dispatch`, utan fråga om versionsnumret. |
 | `navigation-3` | *Googles.* Navigation 3: djuplänkar, flera stackar, scener. |
 | `android-intent-security` | *Googles.* Exporterade komponenter och Intents. |
 | `firebase-security-rules-auditor` | *Googles.* Granska `firestore.rules`. |
 
 Googles skills är oförändrade kopior med källa och licens i sina `SOURCE.md`.
+
+Arbetsflödesskillsen (`refine-issue`, `implement-issue`, `release`) beskriver processen. Repodetaljerna
+– owner/repo, agenter, datakedjan, etiketter, versionsfil, release-workflow och dess inputs – står i
+repots skill `android-projekt` under avsnitten **Issues**, **Arbetsflöde** och **Release**, och
+skillsen hänvisar till repots egna `ci-budget`, `testing-strategy`, `requirements-kravlista`,
+`data-safety-backup`, `shared-ui-components` och `ui-style`.
 
 ## Installation
 
