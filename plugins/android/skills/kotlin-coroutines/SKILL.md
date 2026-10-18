@@ -41,9 +41,11 @@ DI module (`di/`), which provides them with qualifiers. Production code everywhe
 
 @Module @InstallIn(SingletonComponent::class)
 object DispatchersModule {
-    @Provides @IoDispatcher fun io(): CoroutineDispatcher = Dispatchers.IO
-    @Provides @DefaultDispatcher fun default(): CoroutineDispatcher = Dispatchers.Default
+    @Provides @IoDispatcher fun ioDispatcher(): CoroutineDispatcher = Dispatchers.IO
+    @Provides @DefaultDispatcher fun defaultDispatcher(): CoroutineDispatcher = Dispatchers.Default
 }
+// Not `fun default()` or a parameter named `default`: it is a Java keyword, and Hilt's KSP
+// processor rejects it ("cannot be used because it is a Java keyword").
 
 // Everywhere else
 class ExportFiles @Inject constructor(@IoDispatcher private val io: CoroutineDispatcher) {
