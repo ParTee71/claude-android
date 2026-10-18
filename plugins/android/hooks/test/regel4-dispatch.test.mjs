@@ -1,0 +1,79 @@
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { tmpdir } from 'node:os';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const DISPATCH = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'regel4-dispatch.mjs');
+
+// En falsk repohook: PostToolUse-träff för filer som heter Bad.kt, Stop-blockering om
+// repot har filen BLOCK. Skriver vilken projektrot den fick, så att testet ser vem som kördes.
+const FAKE_HOOK = `
+import { readFileSync, existsSync } from 'node:fs';
+const input = JSON.parse(readFileSync(0, 'utf8') || '{}');
+const root = process.env.CLAUDE_PROJECT_DIR;
+if (process.argv.includes('--stop')) {
+  if (existsSync(root + '/BLOCK')) process.stdout.write(JSON.stringify({ decision: 'block', reason: 'träff i ' + root.split('/').pop() }));
+  process.exit(0);
+}
+if (input.tool_input.file_path.endsWith('Bad.kt')) { process.stderr.write('träff i ' + root.split('/').pop()); process.exit(2); }
+process.exit(0);
+`;
+
+function workspace(...repos) {
+  const base = mkdtempSync(path.join(tmpdir(), 'regel4-'));
+  for (const name of repos) {
+    mkdirSync(path.join(base, name, '.claude/hooks'), { recursive: true });
+    mkdirSync(path.join(base, name, 'app/src'), { recursive: true });
+    writeFileSync(path.join(base, name, '.claude/hooks/regel4-check.mjs'), FAKE_HOOK);
+  }
+  return base;
+}
+
+function dispatch(base, input, ...args) {
+  return spawnSync('node', [DISPATCH, ...args], {
+    input: JSON.stringify(input), env: { ...process.env, CLAUDE_PROJECT_DIR: base }, encoding: 'utf8',
+  });
+}
+
+test('PostToolUse går till repot som äger filen', () => {
+  const base = workspace('a', 'b');
+  const r = dispatch(base, { tool_input: { file_path: path.join(base, 'b/app/src/Bad.kt') } });
+  assert.equal(r.status, 2);
+  assert.equal(r.stderr, 'träff i b');
+});
+
+test('PostToolUse är tyst för en fil utan träff och för filer utanför repona', () => {
+  const base = workspace('a');
+  assert.equal(dispatch(base, { tool_input: { file_path: path.join(base, 'a/app/src/Good.kt') } }).status, 0);
+  const r = dispatch(base, { tool_input: { file_path: path.join(base, 'annat/Bad.kt') } });
+  assert.equal(r.status, 0);
+  assert.equal(r.stderr, '');
+});
+
+test('Stop slår ihop blockeringarna från alla repon under roten', () => {
+  const base = workspace('a', 'b', 'c');
+  writeFileSync(path.join(base, 'a/BLOCK'), '');
+  writeFileSync(path.join(base, 'c/BLOCK'), '');
+  const out = JSON.parse(dispatch(base, {}, '--stop').stdout);
+  assert.equal(out.decision, 'block');
+  assert.deepEqual(out.reason.split('\n').sort(), ['träff i a', 'träff i c']);
+});
+
+test('Stop blockerar inte två gånger i följd', () => {
+  const base = workspace('a');
+  writeFileSync(path.join(base, 'a/BLOCK'), '');
+  assert.equal(dispatch(base, { stop_hook_active: true }, '--stop').stdout, '');
+});
+
+test('gör ingenting när projektroten själv är ett repo med egen hook', () => {
+  const base = workspace('a');
+  const repo = path.join(base, 'a');
+  writeFileSync(path.join(repo, 'BLOCK'), '');
+  const edit = dispatch(repo, { tool_input: { file_path: path.join(repo, 'app/src/Bad.kt') } });
+  assert.equal(edit.status, 0);
+  assert.equal(edit.stderr, '');
+  assert.equal(dispatch(repo, {}, '--stop').stdout, '');
+});
