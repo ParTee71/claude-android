@@ -43,6 +43,15 @@ lämnar varje händelse till repots egen `.claude/hooks/regel4-check.mjs`. Det s
 mönsterfiler stannar i repot, eftersom repots CI-hooktest och `UiConsistencyTest` läser dem och CI inte
 når den privata pluginen. Är projektroten själv ett repo med egen hook gör pluginen ingenting.
 
+`hooks/ktlint-check.mjs` kör repots Spotless (ktlint + compose-rules) på varje ändrad `.kt`/`.kts`-fil
+(PostToolUse), i alla repon vars root-`build.gradle.kts` använder Spotless. Den går via Spotless
+IDE-hook (`-PspotlessIdeHook`), så filen skrivs aldrig om och reglerna läses från repots egen
+`ktlintRules`. Regelbrott som `spotlessApply` inte kan rätta, till exempel `lambda-param-in-effect`
+och `content-slot-reused`, blockerar med regel och rad. Ren formatering lämnas åt `spotlessApply`.
+Med varm Gradle-daemon tar det 1–3 sekunder. Hinner den inte inom 25 sekunder (kall daemon, första
+ändringen i sessionen) blir det en påminnelse om `spotlessCheck` i stället. Spotless körs inte i CI
+(CI-budgeten), så hooken är det som fångar brotten innan push.
+
     node --test plugins/android/hooks/test/*.test.mjs
 
 ## Installation
