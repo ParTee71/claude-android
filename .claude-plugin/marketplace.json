@@ -1,0 +1,14 @@
+{
+  "name": "claude-android",
+  "owner": {
+    "name": "ParTee71"
+  },
+  "description": "Claude Code-pluginer för ParTee71:s Android-appar",
+  "plugins": [
+    {
+      "name": "android",
+      "source": "./plugins/android",
+      "description": "Gemensamma Kotlin-, Compose- och Android-regler för ReseApoteket, Dagboken och fonder"
+    }
+  ]
+}

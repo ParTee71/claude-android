@@ -1,0 +1,8 @@
+{
+  "name": "android",
+  "version": "0.1.0",
+  "description": "Gemensamma Kotlin-, Compose- och Android-regler för ReseApoteket, Dagboken och fonder",
+  "author": {
+    "name": "ParTee71"
+  }
+}
