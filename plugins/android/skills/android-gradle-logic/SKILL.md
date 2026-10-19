@@ -61,6 +61,21 @@ maven("https://maven.pkg.github.com/ParTee71/android-ui") {
 - **Felet "Could not resolve se.partee71.ui:…" med 401** betyder att token saknas eller är fel:
   kontrollera att `GPR_TOKEN` finns i miljön (`test -n "$GPR_TOKEN"`) och att sessionen startades
   efter att den lades in. **403** betyder att token saknar `read:packages` eller att CI läser med `GITHUB_TOKEN` i stället för `GPR_TOKEN`.
+- **Prova token först i CI.** Varje jobb som löser android-ui börjar med ett steg som provar
+  `GPR_TOKEN` mot paketet, så att en saknad eller felinklistrad secret stoppar på en sekund med
+  ett tydligt besked i stället för efter bygget och emulatorn:
+
+  ```yaml
+  - name: GPR_TOKEN når android-ui
+    env:
+      GPR_TOKEN: ${{ secrets.GPR_TOKEN }}
+    run: |
+      code=$(curl -s -o /dev/null -w '%{http_code}' -u "x:$GPR_TOKEN" \
+        "https://maven.pkg.github.com/ParTee71/android-ui/se/partee71/ui/ui-theme/maven-metadata.xml")
+      case "$code" in 200|302) ;; *) echo "::error::GPR_TOKEN fungerar inte (HTTP $code) – lägg in secreten på nytt (classic token, read:packages)"; exit 1;; esac
+  ```
+
+  Molnsessionens token provas på samma sätt (`302`/`200` = ok, `401` = fel värde).
 - Bibliotekets version står i appens `libs.versions.toml` (`androidUi = "x.y.z"`) som alla andra.
 
 ## Modules

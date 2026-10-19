@@ -164,6 +164,10 @@ PR:en i stället för att starta en ny. En PR går aldrig ut med kod som ingen g
   Bevaka tills den är mergad eller stängd; hantera granskningskommentarer.
 - Rött CI → agenten **`ci-doktor`** diagnostiserar; fixa grundorsaken och pusha. Kör aldrig
   bara om.
+- **En omkörning startas först när hela körningen är klar.** Emulatorjobbet går ofta kvar efter
+  att Gradle-jobbet fallerat; en omkörning (`rerun_failed_jobs`) mitt i den slutar i
+  "startup_failure" och kostar en runda. Vänta på att körningen är `completed`, eller avbryt den
+  först. Omkörning bara när orsaken är åtgärdad utanför koden (t.ex. en secret som lagts in på nytt).
 - **Körs emulatortesterna** (instrumenttesterna, när PR:en rör koden de testar – repots
   `ci-budget`) **måste de vara gröna för merge.** Ett hoppat jobb är okej, ett rött eller
   avbrutet är det inte.
