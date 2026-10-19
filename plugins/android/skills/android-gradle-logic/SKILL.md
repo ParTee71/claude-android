@@ -50,15 +50,17 @@ maven("https://maven.pkg.github.com/ParTee71/android-ui") {
 }
 ```
 
-- **CI** läser med `GITHUB_TOKEN` (sätt `env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` på
-  Gradle-steget och `permissions: packages: read`). Paketet måste ha gett appens repo läsrätt
-  (paketets inställningar → Manage Actions access).
+- **CI** läser med repo-secreten `GPR_TOKEN` (samma classic token, bara `read:packages`): sätt
+  `env: GPR_TOKEN: ${{ secrets.GPR_TOKEN }}` på Gradle-steget; användarnamnet blir `GITHUB_ACTOR`.
+  `GITHUB_TOKEN` räcker inte: Maven-registret har inga paketrättigheter per repo (ingen Manage
+  Actions access), så en annan repos `GITHUB_TOKEN` når inte paketet. Secreten läggs in under
+  appens Settings → Secrets and variables → Actions.
 - **Molnsessioner** läser med `GPR_USER`/`GPR_TOKEN` (classic token med bara `read:packages`) från
   miljöns variabler. Lokalt: samma variabler eller `~/.gradle/gradle.properties`.
 - Token checkas aldrig in, loggas aldrig och klistras aldrig in i chatten.
 - **Felet "Could not resolve se.partee71.ui:…" med 401** betyder att token saknas eller är fel:
   kontrollera att `GPR_TOKEN` finns i miljön (`test -n "$GPR_TOKEN"`) och att sessionen startades
-  efter att den lades in. **403** betyder att repot inte fått läsrätt till paketet.
+  efter att den lades in. **403** betyder att token saknar `read:packages` eller att CI läser med `GITHUB_TOKEN` i stället för `GPR_TOKEN`.
 - Bibliotekets version står i appens `libs.versions.toml` (`androidUi = "x.y.z"`) som alla andra.
 
 ## Modules

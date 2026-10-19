@@ -74,8 +74,9 @@ står det i `/tmp/plugin-setup.log`.
 
 Apparna som använder komponentbiblioteket `android-ui` hämtar det från GitHub Packages, som kräver
 inloggning även för läsning. Miljön behöver därför variablerna `GPR_USER` (GitHub-användarnamnet)
-och `GPR_TOKEN` (classic token med `read:packages`), som bara nya sessioner får. I CI räcker
-`GITHUB_TOKEN` när paketet gett appens repo läsrätt. Se skill `android-gradle-logic`.
+och `GPR_TOKEN` (classic token med `read:packages`), som bara nya sessioner får. I CI behövs
+samma token som Actions-secret `GPR_TOKEN` i appens repo, eftersom `GITHUB_TOKEN` inte når ett annat
+repos Maven-paket. Se skill `android-gradle-logic`.
 
 ### Lokalt
 
