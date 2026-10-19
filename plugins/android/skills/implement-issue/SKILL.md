@@ -61,6 +61,11 @@ mockupen, visa den och **vänta på ok** innan kod.
 - Slå upp komponenter, ramar och byggstenar i repots skill `shared-ui-components`. Lista vilka
   som används. Rör du en känd dubblett – slå ihop den först.
 - Saknas något delat → planera det som **egen commit före** featuren.
+- Delen finns i biblioteket **android-ui** (import `se.partee71.ui.*`) → ändringen görs där, inte
+  i appen (skill `android-dev` → android-ui). Ordningen är: issue och PR i ParTee71/android-ui med
+  test, skärmdump och höjd version i `gradle.properties` → merge → tagg `v<version>` (publicerar)
+  → appens PR höjer versionen i katalogen och använder den nya parametern. Appens PR väntar tills
+  versionen är publicerad; en PR i taget per repo.
 - Data → repots skill `data-safety-backup` (och datalagrets skill, se `android-projekt` →
   Arbetsflöde). Repots domänskills (beräkningar, larm, externa källor) står i samma avsnitt.
 - Mappa till kravlistans ID:n (repots skill `requirements-kravlista`) och befintliga tester.
