@@ -11,12 +11,12 @@ Skillsen anropas som `android:<namn>`.
 
 | Skill | När |
 |---|---|
-| `android-dev` | Baslinje för allt Android/Kotlin-arbete, med plattformskraven (targetSdk 36, Material 3 beta/stabil, Baseline Profile, ktlint via Spotless, Renovate/Dependabot). |
+| `android-dev` | Baslinje för allt Android/Kotlin-arbete, med plattformskraven (targetSdk 36, Material 3 beta/stabil, Baseline Profile, ktlint via Spotless, Renovate/Dependabot) och komponentbiblioteket `android-ui` (sök där först). |
 | `compose-expert` | Compose: state, stabilitet (`@Immutable` UiState med listor), `key`/`contentType` i listor. |
 | `kotlin-coroutines` | Coroutines; dispatchers injiceras, `Dispatchers.` bara i `di/`. |
 | `kotlin-flows` | Flows; engångshändelser i UiState som UI:t kvitterar. |
 | `accessibility-compose` | TalkBack, tryckytor, stor text, färg och diagram. |
-| `android-gradle-logic` | Versionskatalog, delad byggkonfiguration, convention plugins. |
+| `android-gradle-logic` | Versionskatalog, delad byggkonfiguration, convention plugins, `android-ui` från GitHub Packages. |
 | `firebase-auth` | Google-inloggning med Credential Manager + Firebase Auth. |
 | `mockup` | Mockup före ny GUI. |
 | `refine-issue` | Idé eller bugg till ett förfinat issue med Definition of Done och **Agent · modell · effort**. |
@@ -71,6 +71,11 @@ klonen – repot ska ligga i projektets repolista så att det klonas till `/home
 
 `|| true` är nödvändigt: ett setup-skript som felar stoppar alla nya sessioner. Gick något fel
 står det i `/tmp/plugin-setup.log`.
+
+Apparna som använder komponentbiblioteket `android-ui` hämtar det från GitHub Packages, som kräver
+inloggning även för läsning. Miljön behöver därför variablerna `GPR_USER` (GitHub-användarnamnet)
+och `GPR_TOKEN` (classic token med `read:packages`), som bara nya sessioner får. I CI räcker
+`GITHUB_TOKEN` när paketet gett appens repo läsrätt. Se skill `android-gradle-logic`.
 
 ### Lokalt
 

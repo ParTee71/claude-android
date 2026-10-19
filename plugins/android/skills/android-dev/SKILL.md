@@ -29,6 +29,24 @@ You are a senior Android engineer. Apply the following guidelines to all Android
 - **ktlint via Spotless with compose-rules.** Formatting and lint for Kotlin run through Spotless (`com.diffplug.spotless`) with ktlint and the `io.nlopez.compose.rules` ktlint rules, `.editorconfig` in the repo root. `spotlessCheck` is a fast check; `spotlessApply` fixes. Where the check runs in CI follows the repo's CI budget.
 - **Automated dependency updates.** Renovate or Dependabot opens PRs for the version catalog and GitHub Actions, grouped (e.g. AndroidX, Kotlin + KSP + Compose compiler, Firebase BoM) and scheduled weekly, so updates don't each cost a CI run. Which one the repo uses – se repots CLAUDE.md.
 
+## Gemensamt komponentbibliotek: android-ui
+
+ReseApoteket och Dagboken hämtar tema-API och delade komponenter från biblioteket
+**ParTee71/android-ui** (`se.partee71.ui:ui-theme`, `se.partee71.ui:ui-components`, senare
+`ui-common`) via GitHub Packages. Vilka delar en app redan hämtar därifrån och vilken version
+står i appens versionskatalog och skill `shared-ui-components`.
+
+- **Sök i biblioteket först.** Innan en komponent, ett tema-värde eller en ram byggs eller ändras
+  i appen: finns den i android-ui (`se.partee71.ui.*`), använd den.
+- **En variant blir en parameter i biblioteket, aldrig en lokal kopia** (regel 4). Parametern får
+  en default som bevarar dagens utseende i båda apparna, med test och skärmdump i biblioteket.
+- **Ändra en delad komponent i biblioteket, inte i appen.** Flödet är: PR i android-ui med höjd
+  version → tagg `v<version>` publicerar → en PR per app som höjer versionen i katalogen, en PR i
+  taget (skill `implement-issue`, steg 4).
+- **Färger, typsnitt och apptoner stannar i appen.** Appen fyller i `AppTheme(…)`; biblioteket
+  har bara strukturen (`ExtendedColors`, `AppShapes`, `AppTypography`, `Spacing`, `Tone.Primary`).
+- fonder använder inte biblioteket (eget tema).
+
 ## Existing-pattern check (before designing new mechanisms)
 
 Before adding any new mechanism — events, flows, navigation triggers, or state shape — in an existing project, check how the surrounding code already handles it.

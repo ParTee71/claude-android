@@ -32,6 +32,35 @@ to – the only source; this skill describes the rules, not the numbers.
   A bump that changes SDK levels updates the repo's requirements in the same PR.
 - Dependency updates come as grouped Renovate/Dependabot PRs (skill `android-dev`).
 
+## GitHub Packages (android-ui)
+
+Appar som hämtar biblioteket android-ui lägger GitHub Packages-repot i `settings.gradle.kts`
+(`dependencyResolutionManagement.repositories`), filtrerat till gruppen så att inget annat söks där:
+
+```kotlin
+maven("https://maven.pkg.github.com/ParTee71/android-ui") {
+    name = "androidUi"
+    credentials {
+        username = providers.environmentVariable("GPR_USER")
+            .orElse(providers.environmentVariable("GITHUB_ACTOR")).orNull
+        password = providers.environmentVariable("GPR_TOKEN")
+            .orElse(providers.environmentVariable("GITHUB_TOKEN")).orNull
+    }
+    content { includeGroup("se.partee71.ui") }
+}
+```
+
+- **CI** läser med `GITHUB_TOKEN` (sätt `env: GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}` på
+  Gradle-steget och `permissions: packages: read`). Paketet måste ha gett appens repo läsrätt
+  (paketets inställningar → Manage Actions access).
+- **Molnsessioner** läser med `GPR_USER`/`GPR_TOKEN` (classic token med bara `read:packages`) från
+  miljöns variabler. Lokalt: samma variabler eller `~/.gradle/gradle.properties`.
+- Token checkas aldrig in, loggas aldrig och klistras aldrig in i chatten.
+- **Felet "Could not resolve se.partee71.ui:…" med 401** betyder att token saknas eller är fel:
+  kontrollera att `GPR_TOKEN` finns i miljön (`test -n "$GPR_TOKEN"`) och att sessionen startades
+  efter att den lades in. **403** betyder att repot inte fått läsrätt till paketet.
+- Bibliotekets version står i appens `libs.versions.toml` (`androidUi = "x.y.z"`) som alla andra.
+
 ## Modules
 
 - A pure Kotlin/JVM module (e.g. `:core`) has **no Android or Firebase dependencies**, ever – that
