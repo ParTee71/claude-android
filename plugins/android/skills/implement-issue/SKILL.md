@@ -26,7 +26,9 @@ och sessionen har normalt en enda arbetsbranch.
 2. **Mergad** → `git fetch origin master && git checkout -B <branch> origin/master`. Avsluta
    bevakningen av den gamla PR:en (`unsubscribe_pr_activity`) och ta bort dess check-in.
 3. **Öppen** → säg direkt till användaren att den inte är mergad och att nytt arbete annars
-   hamnar i samma PR. Vänta på besked, eller förbered arbetet i en lokal commit utan push.
+   hamnar i samma PR. Vänta på besked, eller förbered arbetet **ocommittat** i arbetskatalogen
+   och committa först när föregående PR är mergad (en väntande commit får Stop-hooken att
+   klaga på opushat arbete).
    **Återställ aldrig branchen från `master` innan mergen bekräftats** – det tappar
    PR:ens commits lokalt.
 4. Ingen PR alls → skapa branchen från `origin/master`. Committa aldrig direkt på `master`.
