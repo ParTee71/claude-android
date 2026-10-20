@@ -1,6 +1,6 @@
 ---
 name: implement-issue
-description: Genomföra ett GitHub-issue, en bugg, en funktion eller ett underhållsjobb från issue till mergad PR — kontrollera att föregående PR är mergad, förstå arbetet, mockup för ny GUI, återbruk av delade delar, implementera med tester på varje nivå, höj versionen, självgranska med agenten granskare och /code-review i rundor, committa, pusha, öppna PR och bevaka den. Repodetaljerna står i repots android-projekt. Use when the user wants to "implement issue #N", "fix this bug", "build this feature", "do this ticket", "pick up #N", or hands off from refine-issue. Trigger-ord: genomför, implementera, kör #N, kör nästa, driv på, fixa buggen, bygg funktionen, ta issue, PR.
+description: Genomföra ett GitHub-issue, en bugg, en funktion eller ett underhållsjobb från issue till mergad PR — kontrollera att föregående PR är mergad, förstå arbetet, mockup för ny GUI, återbruk av delade delar, implementera med tester på varje nivå, höj versionen, självgranska med agenten android:granskare och /code-review i rundor, committa, pusha, öppna PR och bevaka den. Repodetaljerna står i repots android-projekt. Use when the user wants to "implement issue #N", "fix this bug", "build this feature", "do this ticket", "pick up #N", or hands off from refine-issue. Trigger-ord: genomför, implementera, kör #N, kör nästa, driv på, fixa buggen, bygg funktionen, ta issue, PR.
 ---
 
 # Genomföra ett issue (bugg · funktion · underhåll)
@@ -77,7 +77,7 @@ tvetydigt → fråga användaren innan kod (`AskUserQuestion` där det finns, an
 beslutskort eller en kort fråga i tråden).
 
 **Delegera på rätt nivå:** huvudsessionen orkestrerar och granskar; repots agenter och vad de
-tar står i `android-projekt` → Arbetsflöde. Tester på tre eller fler nivåer till `testskrivare`.
+tar står i `android-projekt` → Arbetsflöde. Tester på tre eller fler nivåer till agenten `android:testskrivare`.
 Går ett steg fel två gånger i rad flyttas det upp en nivå.
 
 **Kör agenten som issuet anger.** Läs issuets avsnitt **Agent · modell · effort** och starta
@@ -125,7 +125,7 @@ får skärmdump ljust + mörkt och plats i `ComponentGallery`.
 
 ## Steg 8 – Självgranskning
 
-Kör agenten **`granskare`** på diffen. Varje ❌ åtgärdas; ett ⚠️ åtgärdas om det är litet,
+Kör agenten **`android:granskare`** på diffen. Varje ❌ åtgärdas; ett ⚠️ åtgärdas om det är litet,
 annars nämns det i PR:en. Spåra varje acceptanskriterium till kod eller test och till
 issuets **Verifiering** – kör de kommandona. Kan du inte det är du inte klar.
 
@@ -135,11 +135,11 @@ test- eller CI-ändring inte har gjort det. Saknad höjning är ❌.
 
 Rör ändringen domänlogik, datalagret, schemat eller rules, backup-kedjan, en extern källa eller
 en delad ram/komponent (repots lista: `android-projekt` → Arbetsflöde) – eller är diffen större
-än ett par filer – kör dessutom den inbyggda **`/code-review`** på diffen, *efter* `granskare`
-och innan push. `granskare` kontrollerar reglerna; `/code-review` letar buggar. Verifiera
+än ett par filer – kör dessutom den inbyggda **`/code-review`** på diffen, *efter* `android:granskare`
+och innan push. Granskaren kontrollerar reglerna; `/code-review` letar buggar. Verifiera
 varje fynd och åtgärda de verkliga. Rena dokument- och strängändringar behöver den inte.
 
-Ändras koden efter granskningen (rättningar av fynden) granskas rättningarna igen – `granskare`
+Ändras koden efter granskningen (rättningar av fynden) granskas rättningarna igen – `android:granskare`
 och `/code-review` på bara det som ändrats sedan förra rundan, och bara mot ❌ och buggar –
 innan push. Rundorna slutar när en runda inte hittar något ❌; ⚠️ i en senare runda nämns i
 PR:en i stället för att starta en ny. En PR går aldrig ut med kod som ingen granskning sett.
@@ -162,7 +162,7 @@ PR:en i stället för att starta en ny. En PR går aldrig ut med kod som ingen g
   (ljust/mörkt). Repots tillägg: `android-projekt` → Arbetsflöde.
 - **Prenumerera direkt** (`subscribe_pr_activity`) utan att fråga, och schemalägg en check-in.
   Bevaka tills den är mergad eller stängd; hantera granskningskommentarer.
-- Rött CI → agenten **`ci-doktor`** diagnostiserar; fixa grundorsaken och pusha. Kör aldrig
+- Rött CI → agenten **`android:ci-doktor`** diagnostiserar; fixa grundorsaken och pusha. Kör aldrig
   bara om.
 - **En omkörning startas först när hela körningen är klar.** Emulatorjobbet går ofta kvar efter
   att Gradle-jobbet fallerat; en omkörning (`rerun_failed_jobs`) mitt i den slutar i

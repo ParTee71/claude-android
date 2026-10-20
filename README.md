@@ -22,6 +22,8 @@ Skillsen anropas som `android:<namn>`.
 | `refine-issue` | Idé eller bugg till ett förfinat issue med Definition of Done och **Agent · modell · effort**. |
 | `implement-issue` | Issue till mergad PR: en PR i taget, mockup-grind, tester, versionshöjning, granskare + `/code-review` i rundor. |
 | `release` | Versionshöjningen i funktions-PR:en och releasen via `workflow_dispatch`, utan fråga om versionsnumret. |
+| `testing-strategy` | Regel 2 generellt: tester på varje berörd nivå, flaky är en bugg, skärmdumpar, mönster och fallgropar. Repots `testing-strategy` har nivåtabellen, hjälparna och kommandona. |
+| `ci-budget` | Regel 5 generellt: ~8 minuter per PR, `changes` + `ci-ok`, emulatorn bara när koden rörs, lint och R8 utanför PR-flödet. Repots `ci-budget` har tabellen över vad som körs när. |
 | `navigation-3` | *Googles.* Navigation 3: djuplänkar, flera stackar, scener. |
 | `android-intent-security` | *Googles.* Exporterade komponenter och Intents. |
 | `firebase-security-rules-auditor` | *Googles.* Granska `firestore.rules`. |
@@ -32,7 +34,24 @@ Arbetsflödesskillsen (`refine-issue`, `implement-issue`, `release`) beskriver p
 – owner/repo, agenter, datakedjan, etiketter, versionsfil, release-workflow och dess inputs – står i
 repots skill `android-projekt` under avsnitten **Issues**, **Arbetsflöde** och **Release**, och
 skillsen hänvisar till repots egna `ci-budget`, `testing-strategy`, `requirements-kravlista`,
-`data-safety-backup`, `shared-ui-components` och `ui-style`.
+`data-safety-backup`, `shared-ui-components` och `ui-style`. `ci-budget` och `testing-strategy`
+finns i två lager: det generella här, det repospecifika (tabellen som dokumentkontrollen läser,
+hjälparna, kommandona) i repot.
+
+## Agenter
+
+Agenterna anropas som `android:<namn>`. De är generella och läser det repospecifika ur repot.
+
+| Agent | När | Läser i repot |
+|---|---|---|
+| `granskare` | Före varje PR (`implement-issue` steg 8): diffen mot de fem reglerna och mockup-regeln, rapport i en tabell. Sessionens modell. | `CLAUDE.md` och `android-projekt` → **Granskning** |
+| `ci-doktor` | Vid rött CI: loggar, skärmdumpsdiffar och CPD-rapporter, föreslår fix utan att pusha. Sonnet. | `ci-budget` → **Felklasser** |
+| `testskrivare` | Tester på tre eller fler nivåer, fixturer. Sonnet. | `testing-strategy` → **För testskrivaren** |
+
+Agenter som är för olika mellan repona (`arkitekt`, `byggare`, `db-inspektor`) stannar i repots
+`.claude/agents/`. Repona med dokumentkontrollen `check-links.mjs` listar pluginens skills i
+`.github/scripts/plugin-skills.txt` och agenter i `plugin-agents.txt`, eftersom CI inte når
+pluginen – uppdatera dem när pluginen får eller tappar en skill eller agent.
 
 ## Hook
 
