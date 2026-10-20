@@ -9,11 +9,13 @@
 //
 // PostToolUse: repot räknas från den ändrade filen; hookens exitkod och stderr förs vidare.
 // Stop: varje repo direkt under roten kontrolleras med `--stop`; blockeringarna slås ihop.
+// Varje besked (PostToolUse-träff, Stop-blockering per repo) ger en rad i beskedloggen (log.mjs).
 
 import { readFileSync, existsSync, readdirSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logBesked } from './log.mjs';
 
 export const HOOK_REL = '.claude/hooks/regel4-check.mjs';
 
@@ -68,7 +70,9 @@ function afterEdit(base, raw) {
   if (!root) return 0;
   const r = run(root, [], raw);
   if (r.stderr) process.stderr.write(r.stderr);
-  return r.status === 2 ? 2 : 0;
+  if (r.status !== 2) return 0;
+  logBesked('regel4-dispatch', 'regel4', root);
+  return 2;
 }
 
 function beforeStop(base, raw) {
@@ -78,7 +82,10 @@ function beforeStop(base, raw) {
     const r = run(root, ['--stop'], raw);
     try {
       const out = JSON.parse(r.stdout);
-      if (out.decision === 'block') reasons.push(out.reason);
+      if (out.decision === 'block') {
+        reasons.push(out.reason);
+        logBesked('regel4-dispatch', 'regel4-stop', root);
+      }
     } catch {
       // Inget eller oläsligt svar: repot har inget att anmärka.
     }

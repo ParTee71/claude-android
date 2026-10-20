@@ -10,11 +10,13 @@
 // resultatet till stdout, så filen ändras aldrig; bara rena formateringsavvikelser lämnas åt
 // spotlessApply. Regelbrott ger exit 2 med raderna på stderr, så att Claude rättar dem.
 // Hinner Gradle inte (kall daemon) får Claude en påminnelse om spotlessCheck i stället.
+// Varje besked (regelbrott eller påminnelse) ger en rad i beskedloggen (log.mjs).
 
 import { readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { logBesked } from './log.mjs';
 
 const TIMEOUT_MS = Number(process.env.KTLINT_HOOK_TIMEOUT_MS) || 25000;
 
@@ -68,6 +70,7 @@ function check(input) {
     { cwd: root, env: { ...process.env, LC_ALL: 'C.UTF-8' }, encoding: 'utf8', timeout: TIMEOUT_MS },
   );
   if (r.error?.code === 'ETIMEDOUT' || r.signal) {
+    logBesked('ktlint-check', 'timeout', root);
     process.stdout.write(JSON.stringify({
       hookSpecificOutput: {
         hookEventName: 'PostToolUse',
@@ -79,6 +82,7 @@ function check(input) {
   if (r.status === 0) return 0;
   const found = violations(r.stderr ?? '');
   if (found.length === 0) return 0;
+  logBesked('ktlint-check', [...new Set(found.map((v) => /\(([^)]+)\)/.exec(v)[1]))].join(','), root);
   process.stderr.write(
     `ktlint (compose-rules) i ${path.relative(root, file)}:\n${found.join('\n')}\n`
       + 'Rätta koden; stäng inte av regeln. Regeln förklaras på https://mrmans0n.github.io/compose-rules/rules/\n',

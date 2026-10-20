@@ -44,7 +44,7 @@ exit 0
 function run(root, file) {
   return spawnSync('node', [HOOK], {
     input: JSON.stringify({ tool_input: { file_path: path.join(root, 'app/src', file) } }),
-    env: { ...process.env, CLAUDE_PROJECT_DIR: path.dirname(root), KTLINT_HOOK_TIMEOUT_MS: '1500' },
+    env: { ...process.env, CLAUDE_PROJECT_DIR: path.dirname(root), KTLINT_HOOK_TIMEOUT_MS: '1500', CLAUDE_HOOKS_LOG: path.join(root, 'hooks.log') },
     encoding: 'utf8',
   });
 }
@@ -95,4 +95,14 @@ test('violations läser varje brott en gång och bara före stackspåret', () =>
     'L7: (compose:lambda-param-in-effect) Lambda parameters in a @Composable that are referenced directly inside of restarting effects can cause issues or unpredictable behavior.',
   ]);
   assert.deepEqual(violations('BUILD FAILED\nsomething else'), []);
+});
+
+test('regelbrott och påminnelse ger en loggrad var, utan kod; tysta körningar ingen', () => {
+  const root = repo();
+  for (const file of ['Bad.kt', 'Slow.kt', 'Fmt.kt', 'Ok.kt', 'Notes.md']) run(root, file);
+  const lines = readFileSync(path.join(root, 'hooks.log'), 'utf8').trim().split('\n').map((l) => l.split('\t'));
+  assert.equal(lines.length, 2);
+  assert.deepEqual(lines[0].slice(1), ['ktlint-check', 'compose:lambda-param-in-effect', path.basename(root)]);
+  assert.deepEqual(lines[1].slice(1), ['ktlint-check', 'timeout', path.basename(root)]);
+  assert.ok(lines.every((l) => l.length === 4 && !Number.isNaN(Date.parse(l[0]))));
 });

@@ -71,6 +71,12 @@ Med varm Gradle-daemon tar det 1–3 sekunder. Hinner den inte inom 25 sekunder 
 ändringen i sessionen) blir det en påminnelse om `spotlessCheck` i stället. Spotless körs inte i CI
 (CI-budgeten), så hooken är det som fångar brotten innan push.
 
+Varje besked från de två hookarna (en regel 4-träff, en Stop-blockering per repo, ett ktlint-brott
+eller en påminnelse) skriver en rad till `/tmp/claude-hooks.log` (eller `$CLAUDE_HOOKS_LOG`): tid,
+hook, regel och repo, tabbseparerade. Filinnehåll och kod skrivs aldrig, och en logg som inte går att
+skriva stoppar aldrig hooken. Veckomätningen läser filen, eftersom PostToolUse-beskeden inte syns i
+sessionens händelseström.
+
     node --test plugins/android/hooks/test/*.test.mjs
 
 ## Installation

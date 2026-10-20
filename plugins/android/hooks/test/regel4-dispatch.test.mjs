@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -34,7 +34,7 @@ function workspace(...repos) {
 
 function dispatch(base, input, ...args) {
   return spawnSync('node', [DISPATCH, ...args], {
-    input: JSON.stringify(input), env: { ...process.env, CLAUDE_PROJECT_DIR: base }, encoding: 'utf8',
+    input: JSON.stringify(input), env: { ...process.env, CLAUDE_PROJECT_DIR: base, CLAUDE_HOOKS_LOG: path.join(base, 'hooks.log') }, encoding: 'utf8',
   });
 }
 
@@ -76,4 +76,33 @@ test('gör ingenting när projektroten själv är ett repo med egen hook', () =>
   assert.equal(edit.status, 0);
   assert.equal(edit.stderr, '');
   assert.equal(dispatch(repo, {}, '--stop').stdout, '');
+});
+
+const logLines = (base) => (existsSync(path.join(base, 'hooks.log')) ? readFileSync(path.join(base, 'hooks.log'), 'utf8').trim().split('\n') : []);
+
+test('varje besked ger exakt en loggrad med tid, hook, regel och repo men inget filinnehåll', () => {
+  const base = workspace('a', 'b');
+  writeFileSync(path.join(base, 'a/app/src/Bad.kt'), 'hemlig kod');
+  dispatch(base, { tool_input: { file_path: path.join(base, 'a/app/src/Bad.kt'), content: 'hemlig kod' } });
+  dispatch(base, { tool_input: { file_path: path.join(base, 'a/app/src/Good.kt') } });
+  writeFileSync(path.join(base, 'b/BLOCK'), '');
+  dispatch(base, {}, '--stop');
+  const lines = logLines(base);
+  assert.equal(lines.length, 2);
+  const [edit, stop] = lines.map((l) => l.split('\t'));
+  assert.ok(!Number.isNaN(Date.parse(edit[0])));
+  assert.deepEqual(edit.slice(1), ['regel4-dispatch', 'regel4', 'a']);
+  assert.deepEqual(stop.slice(1), ['regel4-dispatch', 'regel4-stop', 'b']);
+  assert.doesNotMatch(lines.join('\n'), /hemlig|Bad\.kt/);
+});
+
+test('en logg som inte går att skriva stoppar aldrig hooken', () => {
+  const base = workspace('a');
+  const r = spawnSync('node', [DISPATCH], {
+    input: JSON.stringify({ tool_input: { file_path: path.join(base, 'a/app/src/Bad.kt') } }),
+    env: { ...process.env, CLAUDE_PROJECT_DIR: base, CLAUDE_HOOKS_LOG: path.join(base, 'saknas/hooks.log') },
+    encoding: 'utf8',
+  });
+  assert.equal(r.status, 2);
+  assert.equal(r.stderr, 'träff i a');
 });
