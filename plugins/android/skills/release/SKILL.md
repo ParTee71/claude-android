@@ -26,7 +26,7 @@ Höj `versionCode` med 1, uppdatera versionsfilen (`android-projekt` → Release
 funktions-PR:en, inte vid release. Skriv versionen i PR-beskrivningen. Ren dokument-, test- eller
 CI-ändring utan effekt i appen höjer inte. Är versionen redan höjd sedan senaste tagg, höj bara
 om denna PR är allvarligare (då skrivs den befintliga README-raden om till den nya versionen).
-Agenten `granskare` kontrollerar höjningen (skill `android:implement-issue`, steg 8).
+Agenten `android:granskare` kontrollerar höjningen (skill `android:implement-issue`, steg 8).
 
 ## Hur en release går till
 
@@ -41,7 +41,7 @@ Agenten `granskare` kontrollerar höjningen (skill `android:implement-issue`, st
 - **Publicering:** release-workflowen skapar taggen `vX.Y.Z` själv och publicerar en GitHub
   Release med changelog och APK. Två triggers: push av tagg, eller `workflow_dispatch` på
   `master`.
-- **Ett fallerat jobb:** läs loggen (`get_job_logs`, eller agenten `ci-doktor`), fixa
+- **Ett fallerat jobb:** läs loggen (`get_job_logs`, eller agenten `android:ci-doktor`), fixa
   grundorsaken och kör om bara det som föll (`rerun_failed_jobs`) – aldrig hela releasen, och
   aldrig en omkörning för att se om det var en slump.
 - **Taggar pushas aldrig från en agentsession** – nätverkspolicyn blockerar `refs/tags/*`
@@ -85,7 +85,7 @@ Versionen anges utan `v`; booleska inputs som strängar (`"true"`). Workflowen v
 taggen redan finns, så en upprepad dispatch skriver aldrig över en publicerad Release.
 
 Följ körningen: `actions_list` → `actions_get` → vid fel `get_job_logs` (`failed_only`) eller
-agenten `ci-doktor` → `get_release_by_tag` för `v<version>`.
+agenten `android:ci-doktor` → `get_release_by_tag` för `v<version>`.
 
 **Manuell reserv:** från användarens egen dator `git tag v<version> && git push origin v<version>` –
 samma workflow. Erbjud bara om dispatch-vägen inte fungerar.
