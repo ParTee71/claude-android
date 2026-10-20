@@ -93,8 +93,10 @@ PR:en. Vid rött CI – låt agenten `android:ci-doktor` diagnostisera.
 - **Två Gradle-körningar samtidigt** låser varandra eller ger förvirrande cachefel – vänta in den
   första.
 - **Plattformspaketet heter `android-37.0`**, inte `android-37`, från API 37.
-- **Maven Central svarar 429** när många beroenden hämtas samtidigt – kör om med
-  `--no-parallel --max-workers=2`, inte i en slinga.
+- **Maven Central svarar 429** till sessionens Gradle (färre workers räcker inte alltid). Repots
+  session-start-hook lägger `maven-central-mirror.init.gradle.kts` i `~/.gradle/init.d/`, som
+  byter `repo.maven.apache.org` mot Googles spegel `maven-central.storage-download.googleapis.com`.
+  Saknas filen där: kopiera den från repots `.claude/hooks/` och kör om en gång, inte i en slinga.
 - **En knapp under skärmkanten** är komponerad men klicket landar inte: `performScrollTo` (eller
   `performScrollToIndex` i en lat lista) före klicket.
 - **En DataStore eller annan scope på egen dispatcher** gör att `awaitItem()` väntar på riktig tid
