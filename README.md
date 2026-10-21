@@ -91,11 +91,35 @@ klonen – repot ska ligga i projektets repolista så att det klonas till `/home
 {
   claude plugin marketplace add /home/user/claude-android &&
   claude plugin install android@claude-android
+  node /home/user/claude-android/scripts/repo-plugins.mjs /home/user
 } >> /tmp/plugin-setup.log 2>&1 || true
 ```
 
 `|| true` är nödvändigt: ett setup-skript som felar stoppar alla nya sessioner. Gick något fel
 står det i `/tmp/plugin-setup.log`.
+
+#### Repons egna skills, agenter och hookar i projekttrådar
+
+En projekttråd startar i `/home/user`, ovanför alla repon, och då laddas inget repos `.claude/`.
+Sista raden i blocket ovan kör `scripts/repo-plugins.mjs`, som gör varje repo under `/home/user`
+med en `.claude/` till en lokal plugin i marknadsplatsen `repon` (`/home/user/.repo-plugins`).
+Repona ändras inte.
+
+- Skillsen och agenterna heter `<repo>:<namn>` i gemener, till exempel `reseapoteket:ui-style`,
+  `husjakt:granska` och agenten `husjakt:granskare`. Startar sessionen inne i ett repo heter de
+  `<namn>` som vanligt (och syns även med prefix, vilket inte stör).
+- `skills/`, `agents/` och `commands/` är symlänkar till repots kataloger, så en ändring i repot
+  slår igenom i nästa session utan något annat steg.
+- Hookarna i repots `.claude/settings.json` körs via `scripts/repo-hook.mjs` med repot som
+  `CLAUDE_PROJECT_DIR`, men bara när händelsen rör repot: en ändrad fil i repot, eller (vid Stop)
+  ocommittade filer eller opushade commits i det. Är sessionens rot repot självt gör vakten
+  ingenting, eftersom repots egna inställningar redan kör hooken. Regel 4-hooken tas inte med –
+  den körs av pluginens `regel4-dispatch`.
+- Repots `permissions` laddas inte; de gäller bara när sessionen startar i repot.
+
+Skripten ligger i claude-android, så en ändring i dem följer med nästa session precis som pluginen.
+
+    node --test scripts/test/*.test.mjs
 
 Apparna som använder komponentbiblioteket `android-ui` hämtar det från GitHub Packages, som kräver
 inloggning även för läsning. Miljön behöver därför variablerna `GPR_USER` (GitHub-användarnamnet)
