@@ -115,6 +115,21 @@ with `_state.update { it.copy(...) }` – atomic, unlike `_state.value = _state.
 - The Java target (17 or 21, toolchain or not) is the repo's and must match CI – se repots CLAUDE.md. Shared build settings live in one place (skill `android-gradle-logic`).
 - Keep ProGuard/R8 rules updated when adding libraries.
 
+## Specialskills (Googles)
+
+Oförändrade kopior av Googles skills för smala frågor. Repots regler går före.
+
+| Fråga | Skill |
+|---|---|
+| Behörigheter i manifestet, runtime-förfrågningar, IPC-skydd | `android-permissions-security` |
+| Exporterade komponenter, inkommande Intents | `android-intent-security` |
+| Skriva eller härda `firestore.rules` | `firestore-rules-creation` |
+| Granska `firestore.rules` | `firebase-security-rules-auditor` |
+| Keep-regler och R8 (releasebygget) | `r8-analyzer` |
+| ANR-risker, stackdumpar | `anr-audit-and-fix` |
+| Play-policyn inför publicering | `play-policy-insights` |
+| Rekomposition och tappade bildrutor | `jetpack-compose-performance` |
+
 ## Package Structure
 
 The package tree is the repo's – se repots CLAUDE.md / architecture doc. General rule: look and

@@ -7,7 +7,7 @@ ny version rakt av.
 |---|---|
 | Repo | https://github.com/android/skills |
 | Sökväg | `navigation/navigation-3` |
-| Commit | `42dc2270e960` (2026-09-25) |
+| Commit | `95ea931a1ad8` (2026-10-21) |
 | Licens | Apache 2.0 – [LICENSE.txt](LICENSE.txt) |
 
 **Projektets regler går före.** Skillen är generell referens; där den krockar med

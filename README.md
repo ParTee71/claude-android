@@ -27,8 +27,19 @@ Skillsen anropas som `android:<namn>`.
 | `navigation-3` | *Googles.* Navigation 3: djuplänkar, flera stackar, scener. |
 | `android-intent-security` | *Googles.* Exporterade komponenter och Intents. |
 | `firebase-security-rules-auditor` | *Googles.* Granska `firestore.rules`. |
+| `firestore-rules-creation` | *Googles.* Skriva och härda `firestore.rules`. |
+| `android-permissions-security` | *Googles.* Behörigheter och IPC. |
+| `jetpack-compose-performance` | *Googles.* Rekomposition och tappade bildrutor. |
+| `r8-analyzer` | *Googles.* Keep-regler och R8. |
+| `anr-audit-and-fix` | *Googles.* ANR-risker och stackdumpar. |
+| `play-policy-insights` | *Googles.* Play-policyn inför publicering. Har Python-skript (se nedan). |
 
 Googles skills är oförändrade kopior med källa och licens i sina `SOURCE.md`.
+`android-dev` → **Specialskills (Googles)** visar vilken som gäller vilken fråga.
+`play-policy-insights` har Python-skript som modellen kör när skillen används, aldrig från en hook.
+De läser appens källkod, skriver bara under `.scratch/` i arbetskatalogen och hämtar appens
+Play-sida och datasäkerhetssida från play.google.com med TLS-verifiering. De startar inga
+processer och raderar inget.
 
 Arbetsflödesskillsen (`refine-issue`, `implement-issue`, `release`) beskriver processen. Repodetaljerna
 – owner/repo, agenter, datakedjan, etiketter, versionsfil, release-workflow och dess inputs – står i

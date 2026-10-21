@@ -40,6 +40,7 @@ description: >
 | Coroutines i ViewModel, avbrytning, dispatchers | `kotlin-coroutines` |
 | Skärmdumpar, Robolectric, kontraktstester | repots teststrategi (se repots CLAUDE.md) |
 | Navigation 3: djuplänkar, flera stackar, scener, villkorad navigering (Googles referens; repots egen back stack och övergångar går före) | `navigation-3` |
+| Rekomposition som inte borde ske, tappade bildrutor, "skärmen laggar" – mätning och åtgärder på djupet (Googles referens) | `jetpack-compose-performance` |
 
 Allt annat (state, side effects, prestanda, listor, modifiers, animation) besvaras med
 principerna nedan.
