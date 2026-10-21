@@ -7,7 +7,7 @@ ny version rakt av.
 |---|---|
 | Repo | https://github.com/firebase/agent-skills |
 | Sökväg | `skills/firebase-security-rules-auditor` |
-| Commit | `de359da26586` (2026-10-01) |
+| Commit | `92eed24c0976` (2026-10-20) |
 | Licens | Apache 2.0 – [LICENSE.txt](LICENSE.txt) |
 
 **Projektets regler går före.** Skillen är generell referens; där den krockar med
