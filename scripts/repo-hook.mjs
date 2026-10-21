@@ -4,8 +4,10 @@
 // - Är sessionens projektrot repot självt gör vakten ingenting: repots egna inställningar kör
 //   redan hooken, och två körningar skulle ge dubbla besked.
 // - Har händelsen en fil (`tool_input.file_path`) körs hooken bara om filen ligger i repot.
-// - Annars (Stop och liknande) körs den bara om repot har ändringar: ocommittade filer eller
-//   commits som inte finns på origin. Går det inte att avgöra körs den.
+// - Stop och SubagentStop körs bara om repot har ändringar: ocommittade filer eller commits som
+//   inte finns på origin. Går det inte att avgöra körs den.
+// - Övriga händelser körs alltid: en vakt på Bash (PreToolUse) ska se varje kommando, eftersom
+//   ett kommando kan röra repot utan att nämna en fil, och SessionStart körs en gång.
 // Hookens stdout, stderr och exitkod förs vidare oförändrade.
 //
 //   node repo-hook.mjs <repo> <kommando>
@@ -14,6 +16,8 @@ import { readFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+const STOP = new Set(['Stop', 'SubagentStop']);
 
 function parse(raw) {
   try {
@@ -47,7 +51,8 @@ export function shouldRun(repo, input, projectDir) {
   if (projectDir && path.resolve(projectDir) === path.resolve(repo)) return false;
   const file = input?.tool_input?.file_path;
   if (file) return inside(repo, path.resolve(input.cwd ?? repo, file));
-  return changed(repo) !== false;
+  if (STOP.has(input?.hook_event_name)) return changed(repo) !== false;
+  return true;
 }
 
 function main() {

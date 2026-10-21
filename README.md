@@ -123,8 +123,9 @@ Repona ändras inte.
 - `skills/`, `agents/` och `commands/` är symlänkar till repots kataloger, så en ändring i repot
   slår igenom i nästa session utan något annat steg.
 - Hookarna i repots `.claude/settings.json` körs via `scripts/repo-hook.mjs` med repot som
-  `CLAUDE_PROJECT_DIR`, men bara när händelsen rör repot: en ändrad fil i repot, eller (vid Stop)
-  ocommittade filer eller opushade commits i det. Är sessionens rot repot självt gör vakten
+  `CLAUDE_PROJECT_DIR`, men bara när händelsen rör repot: en ändrad fil ska ligga i repot, och
+  Stop körs bara när repot har ocommittade filer eller opushade commits. Bash-vakter (PreToolUse)
+  och SessionStart körs alltid, eftersom ett kommando kan röra repot utan att nämna en fil. Är sessionens rot repot självt gör vakten
   ingenting, eftersom repots egna inställningar redan kör hooken. Regel 4-hooken tas inte med –
   den körs av pluginens `regel4-dispatch`.
 - Repots `permissions` laddas inte; de gäller bara när sessionen startar i repot.
