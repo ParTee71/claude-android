@@ -57,6 +57,8 @@ När katalogen ändras uppdateras mallen i samma PR som komponenten.
 
 ## Visa och vänta
 
+- Granska mockupen med skill `android:ux-granskning` innan den visas, och rätta de 🔴 fynden.
+  Nämn kvarvarande 🟡 när du visar den.
 - Ge länken och en eller två meningar om vad som visas och vilka val som är öppna.
 - **Skriv ingen kod innan användaren godkänt** eller bett om ändringar. Ändringar görs i
   samma canvas.
