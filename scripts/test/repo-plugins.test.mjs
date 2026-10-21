@@ -23,6 +23,7 @@ function repo(base, name, { skills = true, agents = false, settings } = {}) {
   return dir;
 }
 
+const STOP = { hook_event_name: 'Stop' };
 const git = (dir, ...args) => spawnSync('git', ['-C', dir, ...args], { encoding: 'utf8' });
 
 test('pluginnamn blir gemener utan otillåtna tecken', () => {
@@ -80,13 +81,20 @@ test('vakten vid Stop: bara när repot har ändringar', () => {
   git(origin, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'a');
   const clone = path.join(base, 'clone');
   spawnSync('git', ['clone', '-q', origin, clone]);
-  assert.equal(shouldRun(clone, {}, base), false);
+  assert.equal(shouldRun(clone, STOP, base), false);
   writeFileSync(path.join(clone, 'b'), '2');
-  assert.equal(shouldRun(clone, {}, base), true);
+  assert.equal(shouldRun(clone, STOP, base), true);
   git(clone, 'add', '.');
   git(clone, '-c', 'user.name=t', '-c', 'user.email=t@t', 'commit', '-qm', 'b');
-  assert.equal(shouldRun(clone, {}, base), true);
-  assert.equal(shouldRun(path.join(base, 'inget-repo'), {}, base), true);
+  assert.equal(shouldRun(clone, STOP, base), true);
+  assert.equal(shouldRun(path.join(base, 'inget-repo'), STOP, base), true);
+});
+
+test('vakten kör alltid Bash-vakter och SessionStart, även utan ändringar i repot', () => {
+  const r = mkdtempSync(path.join(tmpdir(), 'repon-'));
+  assert.equal(shouldRun(r, { hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command: 'npx wrangler secret put X' } }, '/home/user'), true);
+  assert.equal(shouldRun(r, { hook_event_name: 'SessionStart' }, '/home/user'), true);
+  assert.equal(shouldRun(r, { hook_event_name: 'SessionStart' }, r), false);
 });
 
 test('vakten kör hooken med repot som rot och för vidare utdata och exitkod', () => {
