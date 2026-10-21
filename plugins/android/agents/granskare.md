@@ -70,6 +70,9 @@ kör bara läsande kommandon (`git diff`, `git log`, `git show`, `git status`, `
   `android:firebase-security-rules-auditor`. Rör den manifestet, extras, `PendingIntent`, notiser
   eller delning: gå igenom skill `android:android-intent-security` (projektets delar: repots
   `android-projekt`).
+- **UX:** ändrar diffen synliga texter (`strings.xml`) eller en skärm: läs skill
+  `android:ux-granskning` → **UX-texter på svenska** och rapportera brott under Process. Gör
+  ingen hel designkritik här.
 
 ## Rapport (exakt detta format)
 

@@ -19,6 +19,7 @@ Skillsen anropas som `android:<namn>`.
 | `android-gradle-logic` | Versionskatalog, delad byggkonfiguration, convention plugins, `android-ui` från GitHub Packages. |
 | `firebase-auth` | Google-inloggning med Credential Manager + Firebase Auth. |
 | `mockup` | Mockup före ny GUI. |
+| `ux-granskning` | Designkritik och UX-texter för en skärm, mockup eller skärmdump. Efter Anthropics `design-critique` och `ux-copy`. |
 | `refine-issue` | Idé eller bugg till ett förfinat issue med Definition of Done och **Agent · modell · effort**. |
 | `implement-issue` | Issue till mergad PR: en PR i taget, mockup-grind, tester, versionshöjning, granskare + `/code-review` i rundor. |
 | `release` | Versionshöjningen i funktions-PR:en och releasen via `workflow_dispatch`, utan fråga om versionsnumret. |
