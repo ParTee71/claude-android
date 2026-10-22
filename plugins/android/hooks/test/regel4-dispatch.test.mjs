@@ -78,6 +78,13 @@ test('gör ingenting när projektroten själv är ett repo med egen hook', () =>
   assert.equal(dispatch(repo, {}, '--stop').stdout, '');
 });
 
+test('med ett repo som projektrot kontrolleras ändå ändringar i ett syskonrepo', () => {
+  const base = workspace('a', 'b');
+  const r = dispatch(path.join(base, 'a'), { tool_input: { file_path: path.join(base, 'b/app/src/Bad.kt') } });
+  assert.equal(r.status, 2);
+  assert.equal(r.stderr, 'träff i b');
+});
+
 const logLines = (base) => (existsSync(path.join(base, 'hooks.log')) ? readFileSync(path.join(base, 'hooks.log'), 'utf8').trim().split('\n') : []);
 
 test('varje besked ger exakt en loggrad med tid, hook, regel och repo men inget filinnehåll', () => {

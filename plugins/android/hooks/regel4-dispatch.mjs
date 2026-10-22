@@ -4,8 +4,9 @@
 // sessionens projektrot är en gemensam katalog med flera repon under sig – då laddas inget
 // repos `.claude/settings.json`, och utan pluginen körs ingen kontroll alls.
 //
-// Är projektroten själv ett repo med egen hook gör pluginen ingenting: repots egna
-// inställningar kör redan hooken, och två körningar skulle ge dubbla besked.
+// Är projektroten själv ett repo med egen hook kör pluginen inte för det repot: repots egna
+// inställningar kör redan hooken, och två körningar skulle ge dubbla besked. Ändringar i andra
+// repon (t.ex. ett syskonrepo bredvid) kontrolleras ändå.
 //
 // PostToolUse: repot räknas från den ändrade filen; hookens exitkod och stderr förs vidare.
 // Stop: varje repo direkt under roten kontrolleras med `--stop`; blockeringarna slås ihop.
@@ -67,7 +68,7 @@ function afterEdit(base, raw) {
   const filePath = parse(raw)?.tool_input?.file_path;
   if (!filePath) return 0;
   const root = repoFor(path.isAbsolute(filePath) ? filePath : path.join(base, filePath));
-  if (!root) return 0;
+  if (!root || root === base) return 0;
   const r = run(root, [], raw);
   if (r.stderr) process.stderr.write(r.stderr);
   if (r.status !== 2) return 0;
@@ -76,7 +77,7 @@ function afterEdit(base, raw) {
 }
 
 function beforeStop(base, raw) {
-  if (parse(raw)?.stop_hook_active) return 0;
+  if (hasHook(base) || parse(raw)?.stop_hook_active) return 0;
   const reasons = [];
   for (const root of childRepos(base)) {
     const r = run(root, ['--stop'], raw);
@@ -96,8 +97,7 @@ function beforeStop(base, raw) {
 
 function main() {
   const raw = readRaw();
-  const base = process.env.CLAUDE_PROJECT_DIR || parse(raw).cwd || process.cwd();
-  if (hasHook(base)) return 0;
+  const base = path.resolve(process.env.CLAUDE_PROJECT_DIR || parse(raw).cwd || process.cwd());
   return process.argv.includes('--stop') ? beforeStop(base, raw) : afterEdit(base, raw);
 }
 
