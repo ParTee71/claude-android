@@ -69,6 +69,7 @@ test('vakten: fil i repot, fil utanför och sessionens egen rot', () => {
   assert.equal(shouldRun(r, { tool_input: { file_path: `${r}/src/a.ts` } }, '/home/user'), true);
   assert.equal(shouldRun(r, { tool_input: { file_path: '/home/user/fonder/a.kt' } }, '/home/user'), false);
   assert.equal(shouldRun(r, { tool_input: { file_path: `${r}/src/a.ts` } }, r), false);
+  assert.equal(shouldRun(r, { tool_name: 'NotebookEdit', tool_input: { notebook_path: '/home/user/fonder/a.ipynb' } }, '/home/user'), false);
 });
 
 test('vakten vid Stop: bara när repot har ändringar', () => {
@@ -108,4 +109,16 @@ test('vakten kör hooken med repot som rot och för vidare utdata och exitkod', 
   assert.equal(run.status, 2);
   assert.equal(run.stdout.trim(), r);
   assert.match(run.stderr, /file_path/);
+});
+
+test('vakten gör en hook som avbryts till ett synligt fel, inte ett tyst ok', () => {
+  const base = mkdtempSync(path.join(tmpdir(), 'repon-'));
+  const r = repo(base, 'r');
+  const guard = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'repo-hook.mjs');
+  const run = spawnSync('node', [guard, r, 'kill -9 $$'], {
+    input: JSON.stringify({ tool_input: { file_path: path.join(r, 'x') } }),
+    env: { ...process.env, CLAUDE_PROJECT_DIR: base }, encoding: 'utf8',
+  });
+  assert.equal(run.status, 1);
+  assert.match(run.stderr, /kördes inte klart: SIGKILL/);
 });
