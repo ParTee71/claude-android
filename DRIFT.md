@@ -14,7 +14,7 @@ mot leverantörernas sidor samma dag.
 | ReseApoteket | publik | Firestore + Auth | Firebase `reseapoteket` | Firestore | rules och backup i Actions | Android |
 | Dagboken | publik | Firestore + Auth | Firebase `dagboken-711d2` | Firestore | rules och backup i Actions | Dagboken |
 | fonder | publik | Room lokalt, Drive-backup, Auth | Firebase `dagboken-711d2` (eget projekt planerat, fonder#225) | på telefonen + Drive | APK i Actions | Android |
-| Husjakt | **privat** | Worker, D1, R2, Pages, 2 cron-uttryck | Cloudflare | D1 + R2 | Actions → `wrangler` | Webb |
+| Husjakt | **privat** | Worker, D1, R2, Pages, 1 cron-uttryck | Cloudflare | D1 + R2 | Actions → `wrangler` | Webb |
 | VeckansMat | publik | Worker med statiska filer | Cloudflare | – | `release.yml` → `wrangler` | Webb |
 | android-ui | publik | Maven-paket | GitHub Packages | – | `publish.yml` | Android |
 | claude-android | publik | plugin, ingen drift | – | – | – | Android |
@@ -37,7 +37,7 @@ Alla publika repon har secret scanning, push protection och regeln *Restrictions
 | Tjänst | Gräns (gratis) | Vem tar av den |
 |---|---|---|
 | Cloudflare Workers | 100 000 anrop/dygn, 10 ms CPU och 50 underanrop per anrop | Husjakt, VeckansMat |
-| Cloudflare Cron Triggers | **5 uttryck per konto** (ett uttryck kan ha flera klockslag) | Husjakt 2, lediga 3 (Husjakt#369) |
+| Cloudflare Cron Triggers | **5 uttryck per konto** (ett uttryck kan ha flera klockslag) | Husjakt 1, lediga 4 (Husjakt#369, #371) |
 | Cloudflare D1 | 5 GB totalt, 500 MB per databas, 5 M radläsningar och 100 000 radskrivningar per dygn | Husjakt |
 | Cloudflare R2 | 10 GB-månad, 1 M klass A- och 10 M klass B-anrop per månad, fri utgående trafik | Husjakt (bilder) |
 | Firestore (Spark, per projekt) | 1 GiB, 50 000 läsningar, 20 000 skrivningar och 20 000 raderingar per dygn | ReseApoteket, Dagboken |
