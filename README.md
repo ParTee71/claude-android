@@ -95,20 +95,27 @@ sessionens händelseström.
 
 ### I molnsessioner (claude.ai/code)
 
-Molnsessioner installerar **aldrig** ett repos `enabledPlugins`, och setup-steget når inte
-privata repon över https. Pluginen installeras därför av miljöns setup-skript från den lokala
-klonen – repot ska ligga i projektets repolista så att det klonas till `/home/user/claude-android`:
+Molnsessioner installerar **aldrig** ett repos `enabledPlugins`. Pluginen installeras därför av
+miljöns setup-skript. Repot är publikt, så skriptet klonar det självt när det inte redan ligger i
+projektets repolista. Står claude-android i listan används den lokala klonen
+(`/home/user/claude-android`), så att en gren med ändringar i pluginen går att prova:
 
 ```bash
 {
-  claude plugin marketplace add /home/user/claude-android &&
+  CA=/home/user/claude-android
+  [ -d "$CA" ] || { CA=/opt/claude-android &&
+    git clone --depth 1 https://github.com/partee71/claude-android "$CA"; } &&
+  claude plugin marketplace add "$CA" &&
   claude plugin install android@claude-android
-  node /home/user/claude-android/scripts/repo-plugins.mjs /home/user
+  node "$CA/scripts/repo-plugins.mjs" /home/user
 } >> /tmp/plugin-setup.log 2>&1 || true
 ```
 
 `|| true` är nödvändigt: ett setup-skript som felar stoppar alla nya sessioner. Gick något fel
-står det i `/tmp/plugin-setup.log`.
+står det i `/tmp/plugin-setup.log`. Samma block står i alla molnmiljöer (Android, Dagboken, Webb).
+
+Appprojekten behöver alltså inte ha claude-android i sin repolista. Ett projekt som ska ändra
+pluginen (Generella förbättringar) har det.
 
 #### Repons egna skills, agenter och hookar i projekttrådar
 
