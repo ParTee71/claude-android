@@ -5,6 +5,9 @@ Gemensam Claude Code-plugin för ReseApoteket, Dagboken och fonder. Här ligger 
 kring issues och PR:er. Det som är eget för ett repo stannar i repots `.claude/`, och där
 de krockar gäller repots CLAUDE.md.
 
+Vilka konton, tjänster, nycklar, Claude-miljöer och gratiskvoter alla repona hänger på står
+i [DRIFT.md](DRIFT.md).
+
 ## Skills
 
 Skillsen anropas som `android:<namn>`.
