@@ -30,7 +30,7 @@ to – the only source; this skill describes the rules, not the numbers.
   + Kotlin's `jvmTarget`) is the repo's and must match CI – se repots CLAUDE.md.
 - SDK levels: `targetSdk` 36 is required for Play updates from 2026-08-31; `compileSdk` ≥ `targetSdk`.
   A bump that changes SDK levels updates the repo's requirements in the same PR.
-- Dependency updates come as grouped Renovate/Dependabot PRs (skill `android-dev`).
+- Dependency updates: Dependabot alerts only; update PRs are parked, bumps go through an issue across all repos (skill `android-dev`).
 
 ## GitHub Packages (android-ui)
 
