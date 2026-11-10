@@ -1,6 +1,6 @@
 ---
 name: arbetsregler
-description: Mats gemensamma arbetsregler för alla projekt (Android-repona, android-ui, Husjakt, VeckansMat) – när en plan i ett issue och hans ok krävs före kod, när en tråd mergar själv, instabila tester, ärliga svar och modell efter jobbet. Ladda innan arbete påbörjas eller planeras, innan en PR skapas eller mergas, och när det är oklart om något kräver ett ok. Trigger-ord: plan, issue, godkänd, plan-godkänd, kör, ok, liten ändring, merga, PR, får jag, vänta på ok, ärliga svar, modell, agent, instabilt test, flaky, omkörning, rött CI.
+description: Mats gemensamma arbetsregler för alla projekt (Android-repona, android-ui, Husjakt, VeckansMat) – när en plan i ett issue och hans ok krävs före kod, när en tråd mergar själv, instabila tester, ärliga svar, modell efter jobbet, tider i svensk tid, tokentak och agenter. Ladda innan arbete påbörjas eller planeras, innan en PR skapas eller mergas, och när det är oklart om något kräver ett ok. Trigger-ord: tid, klockslag, UTC, tokentak, pausa, agenter, parallellt, plan, issue, godkänd, plan-godkänd, kör, ok, liten ändring, merga, PR, får jag, vänta på ok, ärliga svar, modell, agent, instabilt test, flaky, omkörning, rött CI.
 ---
 
 # Gemensamma arbetsregler (alla Mats projekt)
@@ -50,3 +50,20 @@ Varje tråd, session och agent kör den modell jobbet kräver – lagom kraftig,
 Tabellen står i skill `ai-model-choice`. Agenter har en egen `model` i frontmattern, aldrig
 `inherit`: annars granskar en granskare på Fable bara för att tråden råkar gå på Fable.
 Granskare kör Opus 5.5.
+
+## Tider i svensk tid (Mats 2026-11-10)
+
+Tider till Mats skrivs i svensk tid (`Europe/Stockholm`): CEST är UTC+2, CET UTC+1. GitHub,
+Actions, cron och loggar räknar i UTC – citera en UTC-tid bara med den svenska bredvid. Kod,
+cron-uttryck och tidsstämplar i filer ändras inte.
+
+## Tokentak och agenter (Mats 2026-11-10)
+
+- **Går sessionen i taket för tokens:** committa och pusha det som är klart, säg läget i en
+  mening och fortsätt där det slutade när nya tokens finns – utan att fråga om det som redan är
+  avgjort. Inget lämnas halvgjort eller avrundas i förtid. Kan sessionen schemalägga sin
+  återkomst gör den det.
+- **Agenter parallellt är tillåtet, inte förval.** Använd dem för oberoende delar (egna filer
+  eller en egen worktree) när det sparar verklig tid; en tråd som klarar jobbet själv gör det
+  själv, eftersom varje agent kostar tokens. Granska agentens resultat och kör kontrollerna
+  själv före push – rapporten är ett påstående.
