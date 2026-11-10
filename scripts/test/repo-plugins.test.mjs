@@ -5,7 +5,7 @@ import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { build, convertHooks, pluginName } from '../repo-plugins.mjs';
-import { shouldRun } from '../repo-hook.mjs';
+import { shouldRun, slug, otherGithubRepo, reposTouched } from '../repo-hook.mjs';
 
 const HOOKS = {
   hooks: {
@@ -100,11 +100,75 @@ test('vakten vid Stop: bara när repot har ändringar', () => {
   assert.equal(shouldRun(path.join(base, 'inget-repo'), STOP, base), true);
 });
 
-test('vakten kör alltid Bash-vakter och SessionStart, även utan ändringar i repot', () => {
+test('vakten kör SessionStart, och Bash-vakter när inget repo går att peka ut', () => {
   const r = mkdtempSync(path.join(tmpdir(), 'repon-'));
   assert.equal(shouldRun(r, { hook_event_name: 'PreToolUse', tool_name: 'Bash', tool_input: { command: 'npx wrangler secret put X' } }, '/home/user'), true);
   assert.equal(shouldRun(r, { hook_event_name: 'SessionStart' }, '/home/user'), true);
   assert.equal(shouldRun(r, { hook_event_name: 'SessionStart' }, r), false);
+});
+
+/** En rot med repona VeckansMat, Husjakt och claude-android (bara `.git`-kataloger). */
+function root() {
+  const base = mkdtempSync(path.join(tmpdir(), 'rot-'));
+  for (const name of ['VeckansMat', 'Husjakt', 'claude-android']) mkdirSync(path.join(base, name, '.git'), { recursive: true });
+  mkdirSync(path.join(base, 'ingen-klon'));
+  return base;
+}
+const bash = (cwd, command) => ({ hook_event_name: 'PreToolUse', tool_name: 'Bash', cwd, tool_input: { command } });
+
+test('vakten vid Bash: en push i ett annat repo kör inte hooken', () => {
+  const base = root();
+  const vm = path.join(base, 'VeckansMat');
+  const ca = path.join(base, 'claude-android');
+  assert.equal(shouldRun(vm, bash(ca, 'git push -u origin gren'), base), false);
+  assert.equal(shouldRun(vm, bash(path.join(ca, 'scripts'), 'git push'), base), false);
+  assert.equal(shouldRun(vm, bash(base, `cd ${ca} && git push`), base), false);
+  assert.equal(shouldRun(vm, bash(base, 'git -C claude-android push'), base), false);
+});
+
+test('vakten vid Bash: kommandot rör repot via katalogen eller namnet', () => {
+  const base = root();
+  const vm = path.join(base, 'VeckansMat');
+  const hj = path.join(base, 'Husjakt');
+  assert.equal(shouldRun(vm, bash(vm, 'git push'), base), true);
+  assert.equal(shouldRun(vm, bash(path.join(vm, 'src'), 'git push'), base), true);
+  assert.equal(shouldRun(vm, bash(base, 'cd VeckansMat && git push'), base), true);
+  // Står i ett annat repo men nämner det här: båda repona rörs, hooken körs.
+  assert.equal(shouldRun(vm, bash(hj, `git -C ${vm} push`), base), true);
+  // En adress med repots namn i räknas, så att en vakt mot driften ser anropet var det än görs.
+  assert.equal(shouldRun(hj, bash(path.join(base, 'claude-android'), 'curl -X POST https://husjakt.example.dev/x'), base), true);
+});
+
+test('vakten vid Bash: pekas inget repo ut körs hooken', () => {
+  const base = root();
+  const hj = path.join(base, 'Husjakt');
+  assert.equal(shouldRun(hj, bash(base, 'npx wrangler secret put X'), base), true);
+  assert.equal(shouldRun(hj, bash(path.join(base, 'ingen-klon'), 'ls'), base), true);
+  assert.equal(shouldRun(hj, bash(undefined, 'ls'), base), true);
+  assert.deepEqual(reposTouched(base, base, 'ls'), []);
+});
+
+test('vakten vid GitHub-verktyg: bara repots eget origin kör hooken', () => {
+  assert.equal(slug('https://github.com/ParTee71/VeckansMat'), 'partee71/veckansmat');
+  assert.equal(slug('git@github.com:ParTee71/VeckansMat.git'), 'partee71/veckansmat');
+  assert.equal(slug('http://proxy@127.0.0.1:8080/git/ParTee71/VeckansMat/'), 'partee71/veckansmat');
+  assert.equal(slug(''), null);
+  const origin = 'https://github.com/ParTee71/VeckansMat';
+  assert.equal(otherGithubRepo('/x', { owner: 'partee71', repo: 'claude-android', body: 'Closes #35' }, origin), true);
+  assert.equal(otherGithubRepo('/x', { owner: 'partee71', repo: 'veckansmat' }, origin), false);
+  assert.equal(otherGithubRepo('/x', { owner: 'ParTee71', repo: 'VeckansMat' }, null), false); // okänt origin: kör
+  assert.equal(otherGithubRepo('/x', { command: 'ls' }, origin), false); // inget GitHub-verktyg
+});
+
+test('vakten vid GitHub-verktyg: en PR i ett annat repo når inte repots hook', () => {
+  const base = mkdtempSync(path.join(tmpdir(), 'repon-'));
+  const vm = path.join(base, 'VeckansMat');
+  mkdirSync(vm);
+  git(vm, 'init', '-q');
+  git(vm, 'remote', 'add', 'origin', 'https://github.com/ParTee71/VeckansMat');
+  const pr = (owner, name) => ({ hook_event_name: 'PreToolUse', tool_name: 'mcp__github__create_pull_request', tool_input: { owner, repo: name, body: 'Closes #35' } });
+  assert.equal(shouldRun(vm, pr('partee71', 'claude-android'), base), false);
+  assert.equal(shouldRun(vm, pr('ParTee71', 'VeckansMat'), base), true);
 });
 
 test('vakten kör hooken med repot som rot och för vidare utdata och exitkod', () => {
