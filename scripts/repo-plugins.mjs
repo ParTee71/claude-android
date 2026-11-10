@@ -13,10 +13,16 @@
 // `.claude/` under roten; en plugin som länkar dit avvisas ("Path escapes plugin directory"),
 // och en kopia blir gammal eftersom setup-skriptet körs innan repona hämtas på nytt.
 //
-//   node repo-plugins.mjs [rot] [--no-install]
+// Repons `permissions.deny` och `ask` läggs i användarinställningarna (`~/.claude/settings.json`),
+// eftersom en plugin inte kan bära behörigheter (#40). Sökvägar skrivs om till repots absoluta
+// sökväg, så att en spärr från ett repo bara gäller där. `allow` tas inte med: en tillåtelse från
+// ett repo ska inte gälla i ett annat. Befintliga nycklar i filen lämnas orörda.
+//
+//   node repo-plugins.mjs [rot] [--no-install] [--settings <fil>]
 
 import { existsSync, readdirSync, readFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
+import { homedir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -90,6 +96,65 @@ export function build(base, out = path.join(base, '.repo-plugins')) {
   return { out, plugins };
 }
 
+/** Verktyg vars regel pekar ut en sökväg (gitignore-mönster). */
+const PATH_TOOLS = new Set(['Read', 'Edit', 'Write', 'MultiEdit', 'NotebookEdit']);
+
+/**
+ * En behörighetsregel ur repots inställningar, med sökvägen gjord absolut mot repot
+ * (`Read(./.env)` i VeckansMat blir `Read(//home/user/VeckansMat/.env)`). Andra regler, t.ex.
+ * för Bash, gäller kommandon och lämnas som de är.
+ */
+export function anchorRule(repo, rule) {
+  const m = /^(\w+)\((.*)\)$/.exec(rule);
+  if (!m || !PATH_TOOLS.has(m[1])) return rule;
+  const spec = m[2];
+  if (spec.startsWith('//') || spec.startsWith('~')) return rule;
+  const rest = spec.replace(/^\.?\//, '');
+  return `${m[1]}(/${path.resolve(repo)}/${rest})`;
+}
+
+/** Repots `deny` och `ask`, förankrade i repot. */
+export function repoPermissions(repo, settings) {
+  const p = settings.permissions ?? {};
+  return {
+    deny: (p.deny ?? []).map((r) => anchorRule(repo, r)),
+    ask: (p.ask ?? []).map((r) => anchorRule(repo, r)),
+  };
+}
+
+/** Alla repons `deny` och `ask` under roten, utan dubbletter. */
+export function collectPermissions(base) {
+  const deny = new Set();
+  const ask = new Set();
+  if (!existsSync(base)) return { deny: [], ask: [] };
+  for (const d of readdirSync(base, { withFileTypes: true })) {
+    if (!d.isDirectory() || d.name.startsWith('.')) continue;
+    const dir = path.join(base, d.name);
+    const perms = repoPermissions(dir, readSettings(dir));
+    perms.deny.forEach((r) => deny.add(r));
+    perms.ask.forEach((r) => ask.add(r));
+  }
+  return { deny: [...deny], ask: [...ask] };
+}
+
+/** Lägger reglerna i inställningsfilen; befintliga nycklar och regler står kvar. */
+export function mergeSettings(file, { deny, ask }) {
+  let settings = {};
+  try {
+    settings = JSON.parse(readFileSync(file, 'utf8'));
+  } catch {
+    // ingen fil eller ogiltig: börja från tomt
+  }
+  const permissions = settings.permissions ?? {};
+  const add = (list, rules) => [...new Set([...(list ?? []), ...rules])];
+  if (deny.length > 0) permissions.deny = add(permissions.deny, deny);
+  if (ask.length > 0) permissions.ask = add(permissions.ask, ask);
+  if (deny.length > 0 || ask.length > 0) settings.permissions = permissions;
+  mkdirSync(path.dirname(file), { recursive: true });
+  writeFileSync(file, `${JSON.stringify(settings, null, 2)}\n`);
+  return settings;
+}
+
 function claude(...args) {
   const r = spawnSync('claude', args, { encoding: 'utf8' });
   process.stdout.write(`$ claude ${args.join(' ')}\n${r.stdout ?? ''}${r.stderr ?? ''}${r.error ? `${r.error}\n` : ''}`);
@@ -97,7 +162,12 @@ function claude(...args) {
 
 function main() {
   const args = process.argv.slice(2);
-  const base = args.find((a) => !a.startsWith('--')) ?? '/home/user';
+  const base = args.find((a, j) => !a.startsWith('--') && args[j - 1] !== '--settings') ?? '/home/user';
+  const i = args.indexOf('--settings');
+  const settingsFile = i >= 0 ? args[i + 1] : path.join(homedir(), '.claude/settings.json');
+  const perms = collectPermissions(base);
+  mergeSettings(settingsFile, perms);
+  console.log(`${settingsFile}: ${perms.deny.length} deny, ${perms.ask.length} ask`);
   const { out, plugins } = build(base);
   console.log(`${out}: ${plugins.join(', ') || 'inga repon'}`);
   if (args.includes('--no-install') || plugins.length === 0) return;

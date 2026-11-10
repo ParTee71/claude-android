@@ -169,7 +169,12 @@ En projekttråd startar i `/home/user`, ovanför alla repon, och då laddas inge
   Är sessionens rot repot självt gör vakten ingenting, eftersom repots egna inställningar redan
   kör hooken. Regel 4-hooken (PostToolUse och Stop) tas inte med –
   den körs av pluginens `regel4-dispatch`.
-- Repots `permissions` laddas inte; de gäller bara när sessionen startar i repot.
+- Repots `permissions.deny` och `ask` läggs i användarinställningarna (`~/.claude/settings.json`)
+  av samma skript, med sökvägarna förankrade i repot: `Read(./.env)` i fonder blir
+  `Read(//home/user/fonder/.env)`, så en spärr gäller bara där. Regler för Bash gäller
+  kommandon och följer med som de är, alltså i alla repon. `allow` följer inte med, eftersom en
+  tillåtelse från ett repo inte ska gälla i ett annat; det ger bara fler frågor. Prövat
+  2026-11-10: en `Read` av en spärrad fil i fonder nekades.
 
 Skripten ligger i claude-android, så en ändring i dem följer med nästa session precis som pluginen.
 

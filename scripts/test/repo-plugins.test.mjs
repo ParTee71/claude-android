@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, lstat
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { build, convertHooks, pluginName } from '../repo-plugins.mjs';
+import { build, convertHooks, pluginName, anchorRule, collectPermissions, mergeSettings } from '../repo-plugins.mjs';
 import { shouldRun, slug, otherGithubRepo, reposTouched } from '../repo-hook.mjs';
 
 const HOOKS = {
@@ -207,4 +207,48 @@ test('vakten gör en hook som avbryts till ett synligt fel, inte ett tyst ok', (
   });
   assert.equal(run.status, 1);
   assert.match(run.stderr, /kördes inte klart: SIGKILL/);
+});
+
+test('behörigheter: sökvägsregler förankras i repot, andra lämnas', () => {
+  const r = '/home/user/VeckansMat';
+  assert.equal(anchorRule(r, 'Read(./.env)'), 'Read(//home/user/VeckansMat/.env)');
+  assert.equal(anchorRule(r, 'Read(**/*.jks)'), 'Read(//home/user/VeckansMat/**/*.jks)');
+  assert.equal(anchorRule(r, 'Read(/.env)'), 'Read(//home/user/VeckansMat/.env)');
+  assert.equal(anchorRule(r, 'Read(//etc/passwd)'), 'Read(//etc/passwd)');
+  assert.equal(anchorRule(r, 'Read(~/.ssh/**)'), 'Read(~/.ssh/**)');
+  assert.equal(anchorRule(r, 'Bash(npx wrangler deploy:*)'), 'Bash(npx wrangler deploy:*)');
+  assert.equal(anchorRule(r, 'WebFetch'), 'WebFetch');
+});
+
+test('behörigheter: deny och ask från alla repon, utan allow och utan dubbletter', () => {
+  const base = mkdtempSync(path.join(tmpdir(), 'repon-'));
+  repo(base, 'VeckansMat', { settings: { permissions: {
+    allow: ['Bash(npm run verify)'],
+    deny: ['Read(./.env)', 'Bash(rm -rf:*)'],
+    ask: ['Bash(npx wrangler deploy:*)'],
+  } } });
+  repo(base, 'Husjakt', { settings: { permissions: { deny: ['Read(./.env)', 'Bash(rm -rf:*)'] } } });
+  repo(base, 'utan', {});
+  const perms = collectPermissions(base);
+  assert.deepEqual(perms.deny.sort(), [
+    'Bash(rm -rf:*)',
+    `Read(/${base}/Husjakt/.env)`,
+    `Read(/${base}/VeckansMat/.env)`,
+  ].sort());
+  assert.deepEqual(perms.ask, ['Bash(npx wrangler deploy:*)']);
+});
+
+test('behörigheter: inställningsfilen behåller sina nycklar och regler', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'inst-'));
+  const file = path.join(dir, '.claude/settings.json');
+  mkdirSync(path.dirname(file));
+  writeFileSync(file, JSON.stringify({ enabledPlugins: { 'android@claude-android': true }, permissions: { deny: ['Read(//x)'], allow: ['Bash(ls)'] } }));
+  mergeSettings(file, { deny: ['Read(//x)', 'Read(//y)'], ask: ['Bash(z)'] });
+  mergeSettings(file, { deny: ['Read(//y)'], ask: [] }); // igen: inga dubbletter
+  const s = JSON.parse(readFileSync(file, 'utf8'));
+  assert.deepEqual(s.enabledPlugins, { 'android@claude-android': true });
+  assert.deepEqual(s.permissions, { deny: ['Read(//x)', 'Read(//y)'], allow: ['Bash(ls)'], ask: ['Bash(z)'] });
+  const fresh = path.join(dir, 'ny/settings.json');
+  mergeSettings(fresh, { deny: [], ask: [] });
+  assert.deepEqual(JSON.parse(readFileSync(fresh, 'utf8')), {});
 });
