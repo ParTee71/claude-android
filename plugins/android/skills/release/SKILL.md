@@ -1,6 +1,6 @@
 ---
 name: release
-description: Release-flödet för en Android-app — versionen är redan höjd i funktions-PR:en, så releasen frågar inte om numret; kontrollera version, README-raden och kravlistan, trigga repots release-workflow via workflow_dispatch så att GitHub Actions kör grindarna (tester bara där samma kod inte redan testats grönt), skapar taggen, bygger den signerade APK:n och publicerar en GitHub Release, och avsluta med APK-länken. Innehåller också regeln för versionshöjning i funktions-PR:en. CI-först (fungerar från telefonen). Använd BARA när användaren uttryckligen ber om en release. Use when the user asks to "release", "ship", "publish a version", "cut a release". Trigger-ord: release, släpp, ny version, publicera, versionshöjning, semver, versionCode, versionName, bygg APK, signerad APK.
+description: Release-flödet för en Android-app — versionen är redan höjd i funktions-PR:en, så releasen frågar inte om numret; kontrollera version, README-raden och kravlistan, trigga repots release-workflow via workflow_dispatch så att GitHub Actions kör grindarna (tester bara där samma kod inte redan testats grönt), skapar taggen, bygger den signerade APK:n och publicerar en GitHub Release, och avsluta med länken till release-sidan. Innehåller också regeln för versionshöjning i funktions-PR:en. CI-först (fungerar från telefonen). Använd BARA när användaren uttryckligen ber om en release. Use when the user asks to "release", "ship", "publish a version", "cut a release". Trigger-ord: release, släpp, ny version, publicera, versionshöjning, semver, versionCode, versionName, bygg APK, signerad APK.
 ---
 
 # Release
@@ -90,19 +90,23 @@ agenten `android:ci-doktor` → `get_release_by_tag` för `v<version>`.
 **Manuell reserv:** från användarens egen dator `git tag v<version> && git push origin v<version>` –
 samma workflow. Erbjud bara om dispatch-vägen inte fungerar.
 
-## Steg 4 – Sammanfattning med APK-länk
+## Steg 4 – Sammanfattning med länk till release-sidan
 
-Avsluta **alltid** med länken till APK:n – appen installeras från telefonen, och "bygget är
-grönt" utan länk tvingar fram ett extra steg. Ange commit och `versionName`.
+Avsluta **alltid** med länken till **release-sidan** (`https://github.com/<owner>/<repo>/releases/tag/v<version>`),
+aldrig en direktlänk till APK-filen – appen installeras från telefonen, och "bygget är grönt" utan
+länk tvingar fram ett extra steg. Release-sidan visar filen, changelogen och taggen på ett ställe.
+Ange commit och `versionName`. Gäller alla Android-appar (Mats 2026-11-10).
 ```
 Släppt:  <App> v<version>  (versionCode <n>)
 Commit:  <sha> på master
 Tagg:    v<version> (skapad av release-workflowen)
 CI:      <länk / status>
-APK:     <Release-länk> (signerad <app>-<version>-<tidsstämpel>.apk)
+Release: <länk till release-sidan>
 ```
-Samma regel för ett testbygge utan Release eller en debug-snapshot (länk till artifacten eller
-releasesidan), om repot har sådana (`android-projekt` → Release).
+Samma regel för varje annat bygge som ger en installerbar APK – testbygge, debug-snapshot,
+ombyggnad av samma commit: länka release-sidan (t.ex. `.../releases/tag/debug-snapshot`), eller
+körningens sida när bygget bara laddar upp en artifact. Vilka byggen repot har står i
+`android-projekt` → Release.
 
 ## Reserv – bygga lokalt i Android Studio
 
