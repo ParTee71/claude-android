@@ -74,12 +74,13 @@ pluginen – uppdatera dem när pluginen får eller tappar en skill eller agent.
 
 ## Hook
 
-`hooks/regel4-dispatch.mjs` kör regel 4-kontrollen (PostToolUse efter Edit/Write, Stop före turens
-slut) när sessionens projektrot är en gemensam katalog med flera repon under sig, som i molnsessioner
-med `/home/user`. Då laddas inget repos `.claude/settings.json`. Pluginen har inga egna mönster: den
-lämnar varje händelse till repots egen `.claude/hooks/regel4-check.mjs`. Det skriptet och dess
-mönsterfiler stannar i repot, eftersom repots CI-hooktest och `UiConsistencyTest` läser dem och CI inte
-når den privata pluginen. Är projektroten själv ett repo med egen hook gör pluginen ingenting.
+`hooks/regel4-check.mjs` är regel 4-kontrollen för Android-repona (#57): PostToolUse efter
+Edit/Write och Stop före turens slut, i projektroten eller i varje repo under den. Motorn finns bara
+här. Repot har sina mönster, undantag och delade exempel i `app/src/test/resources/` (som
+`UiConsistencyTest` också läser) och sina scope, beskedets texter och ev. baslinje i
+`.claude/regel4.json`. Repots CI checkar ut claude-android och kör `regel4-check.mjs --verify .`, som
+prövar konfigurationen mot mönsterfilen, alla delade exempel, undantagsfilen och baslinjen.
+`--baseline` skriver om baslinjen i `ui-allowlist.txt` (repon med `baseline` i konfigurationen).
 
 `hooks/ktlint-check.mjs` kör repots Spotless (ktlint + compose-rules) på varje ändrad `.kt`/`.kts`-fil
 (PostToolUse), i alla repon vars root-`build.gradle.kts` använder Spotless. Den går via Spotless
@@ -184,7 +185,7 @@ En projekttråd startar i `/home/user`, ovanför alla repon, och då laddas inge
 
   Är sessionens rot repot självt gör vakten ingenting, eftersom repots egna inställningar redan
   kör hooken. Regel 4-hooken (PostToolUse och Stop) tas inte med –
-  den körs av pluginens `regel4-dispatch`.
+  den körs av pluginens `regel4-check`.
 - Repots `permissions.deny` och `ask` läggs i användarinställningarna (`~/.claude/settings.json`)
   av samma skript, med sökvägarna förankrade i repot: `Read(./.env)` i fonder blir
   `Read(//home/user/fonder/.env)`, så en spärr gäller bara där. Regler för Bash gäller

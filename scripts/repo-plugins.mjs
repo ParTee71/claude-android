@@ -6,7 +6,7 @@
 //
 // Varje repo med hookar blir pluginen `<repo i gemener>` i marknadsplatsen `repon` under
 // `<rot>/.repo-plugins`. Hookarna går via `repo-hook.mjs`, som bara kör dem när händelsen rör
-// repot (se där). Regel 4-hooken (PostToolUse och Stop) hoppas över: pluginens `regel4-dispatch`
+// repot (se där). Regel 4-hooken (PostToolUse och Stop) hoppas över: pluginens `regel4-check`
 // kör den.
 //
 // Pluginen bär bara hookar (#37). Skills och agenter hittar Claude Code själv i repots
@@ -43,7 +43,7 @@ function readSettings(repo) {
 }
 
 /**
- * Är det repots regel 4-hook? Den körs av pluginens `regel4-dispatch` (efter en ändring och vid
+ * Är det repots regel 4-hook? Den körs av pluginens `regel4-check` (efter en ändring och vid
  * Stop). En SessionStart som bara letar upp sin katalog via samma filnamn är det inte (#39).
  */
 const runsRegel4 = (event, command) => (event === 'PostToolUse' || event === 'Stop') && command.includes('regel4-check');

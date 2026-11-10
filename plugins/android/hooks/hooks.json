@@ -22,7 +22,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/regel4-dispatch.mjs\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/regel4-check.mjs\"",
             "timeout": 20
           },
           {
@@ -38,7 +38,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/regel4-dispatch.mjs\" --stop",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/regel4-check.mjs\" --stop",
             "timeout": 60
           }
         ]
