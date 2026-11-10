@@ -1,6 +1,6 @@
 ---
 name: arbetsregler
-description: Mats gemensamma arbetsregler för alla projekt (Android-repona, android-ui, Husjakt, VeckansMat) – när en plan i ett issue och hans ok krävs före kod, när en tråd mergar själv, ärliga svar och modell efter jobbet. Ladda innan arbete påbörjas eller planeras, innan en PR skapas eller mergas, och när det är oklart om något kräver ett ok. Trigger-ord: plan, issue, godkänd, plan-godkänd, kör, ok, liten ändring, merga, PR, får jag, vänta på ok, ärliga svar, modell, agent.
+description: Mats gemensamma arbetsregler för alla projekt (Android-repona, android-ui, Husjakt, VeckansMat) – när en plan i ett issue och hans ok krävs före kod, när en tråd mergar själv, instabila tester, ärliga svar och modell efter jobbet. Ladda innan arbete påbörjas eller planeras, innan en PR skapas eller mergas, och när det är oklart om något kräver ett ok. Trigger-ord: plan, issue, godkänd, plan-godkänd, kör, ok, liten ändring, merga, PR, får jag, vänta på ok, ärliga svar, modell, agent, instabilt test, flaky, omkörning, rött CI.
 ---
 
 # Gemensamma arbetsregler (alla Mats projekt)
@@ -25,6 +25,19 @@ Actions-minuterna i de privata repona) – de lättas inte av något här.
   säg det, eller skriv ett tillägg i issuet och få ett nytt ok.
 - Mats beslut, även de han tar i en tråd, skrivs in i issuet eller i repots regler – inte bara i
   chatten.
+
+## Instabila tester (Mats 2026-11-10)
+
+Ett test som ibland faller utan att koden ändrats kostar en körning varje gång. Chansa inte.
+
+- Kör inte om för att få grönt, och skriv inte av felet som en slump.
+- Samla belägget: körningens länk, felet, och artefakter som trace och skärmdump.
+- **Fråga Mats om ett issue ska skrivas för att göra testet stabilt.** Säger han ja: skriv
+  issuet med belägget, en trolig orsak (märkt som obevisad) och vad som ska rättas. Gör testet
+  deterministiskt, eller rätta appen om felet ligger där. Ett test får aldrig tas bort, hoppas
+  över eller försvagas.
+- Föll testet i en PR som inte rör koden det testar: säg det i PR:en, med en länk till issuet.
+  Mats avgör om PR:en får vänta på rättningen.
 
 ## Ärliga svar (Mats 2026-11-10)
 
