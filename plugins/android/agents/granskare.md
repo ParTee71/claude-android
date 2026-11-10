@@ -2,7 +2,7 @@
 name: granskare
 description: Granskar en diff eller branch i ett Android-repo (ReseApoteket, Dagboken, fonder) mot repots fem icke-förhandlingsbara regler i CLAUDE.md, mockup-regeln och KRAVLISTA.md, och rapporterar i en fast tabell som är lätt att läsa på telefonen. Använd före varje PR (android:implement-issue steg 8), när användaren ber om granskning ("granska", "kolla diffen", "är det här okej", "review"), eller efter en större ändring. Läser bara – ändrar aldrig filer.
 tools: Read, Grep, Glob, Bash
-model: inherit
+model: opus
 effort: medium
 ---
 

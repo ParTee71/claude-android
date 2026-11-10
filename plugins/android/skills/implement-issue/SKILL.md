@@ -42,6 +42,9 @@ README och versionen.
   `get_comments`). Acceptanskriterier, Design, Återbruk och **Agent · modell · effort** är
   kontraktet; kommentarer med rubriken "Tillägg" ändrar eller kompletterar det och gäller före
   issuetexten.
+- **Större eller liten?** Skill `android:arbetsregler`: en större ändring kräver ett issue med
+  plan och Mats ok ("kör" eller `plan-godkänd`); en liten går direkt till PR med raden
+  `Liten ändring: <varför>`. Osäker → större.
 - Oklart eller riskabelt omfång → kör `android:refine-issue` först eller bekräfta omfånget.
 - Klassa: bugg, funktion eller underhåll.
 
