@@ -3,7 +3,7 @@
 Gemensam Claude Code-plugin för Mats projekt. Det mesta är för Android-repona
 ReseApoteket, Dagboken, fonder och biblioteket android-ui: Kotlin, Compose, Navigation 3 och
 arbetssättet kring issues och PR:er. Några delar gäller alla repon, också Husjakt och
-VeckansMat: arbetsreglerna (`arbetsregler`), modellvalet (`ai-model-choice`), uppsättningen för projekttrådar
+VeckansMat: arbetsreglerna (`arbetsregler`), arbetsflödets stomme (`arbetsflode`), modellvalet (`ai-model-choice`), uppsättningen för projekttrådar
 (`scripts/repo-plugins.mjs`, `repo-hook.mjs`) och sessionsstartens kontroll (`setup-check`). Det som är eget för ett repo stannar i repots `.claude/`, och där
 de krockar gäller repots CLAUDE.md.
 
@@ -25,8 +25,9 @@ Skillsen anropas som `android:<namn>`.
 | `firebase-auth` | Google-inloggning med Credential Manager + Firebase Auth. |
 | `mockup` | Mockup före ny GUI. |
 | `ux-granskning` | Designkritik och UX-texter för en skärm, mockup eller skärmdump. Efter Anthropics `design-critique` och `ux-copy`. |
-| `refine-issue` | Idé eller bugg till ett förfinat issue med Definition of Done och **Agent · modell · effort**. |
-| `implement-issue` | Issue till mergad PR: en PR i taget, mockup-grind, tester, versionshöjning, granskare + `/code-review` i rundor. |
+| `arbetsflode` | Arbetsflödets stomme för alla Mats repon: idé till issue (mallen, Agent · modell · effort, stoppet för ok) och issue till PR (förra PR:en via GitHub, test först vid bugg, granskning i rundor, en push, PR-texten, bevakning, `mergeable_state`, konflikter, merge). Enda källan – repons arbetsflödesskills lägger sina steg ovanpå. |
+| `refine-issue` | Android-delarna ovanpå `arbetsflode`: kodgenomgång mot de fem reglerna, Definition of Done, rubrikerna Återbruk, Datasäkerhet och Krav. |
+| `implement-issue` | Android-delarna ovanpå `arbetsflode`: mockup, återbruk och android-ui, datakedjan, versionshöjning, `android:granskare`, emulatortesterna. |
 | `arbetsregler` | Gemensamma arbetsregler för alla Mats projekt: plan i issue och ok bara för större ändringar, små direkt till PR, ärliga svar, agenter med egen modell, driva igenom utan bekräftelsefrågor, en PR i taget, tider i svensk tid, tokentak och agenter vid behov. Enda källan – repons CLAUDE.md länkar hit. |
 | `ai-model-choice` | Modellval för sessioner, agenter och issues i alla Mats projekt: Opus 5.5 som standard, Fable 5.2 bara med skäl och medium/high effort. Enda källan – repons CLAUDE.md länkar hit. |
 | `release` | Versionshöjningen i funktions-PR:en och releasen via `workflow_dispatch`, utan fråga om versionsnumret. |
@@ -49,7 +50,7 @@ De läser appens källkod, skriver bara under `.scratch/` i arbetskatalogen och 
 Play-sida och datasäkerhetssida från play.google.com med TLS-verifiering. De startar inga
 processer och raderar inget.
 
-Arbetsflödesskillsen (`refine-issue`, `implement-issue`, `release`) beskriver processen. Repodetaljerna
+Arbetsflödets stomme står i `arbetsflode` och gäller alla repon; VeckansMats `refine-issue` och `implement-issue` och Husjakts `forfina` och `genomfor` lägger sina steg ovanpå på samma sätt som `refine-issue` och `implement-issue` här. Android-skillsen (`refine-issue`, `implement-issue`, `release`) beskriver Android-delen. Repodetaljerna
 – owner/repo, agenter, datakedjan, etiketter, versionsfil, release-workflow och dess inputs – står i
 repots skill `android-projekt` under avsnitten **Issues**, **Arbetsflöde** och **Release**, och
 skillsen hänvisar till repots egna `ci-budget`, `testing-strategy`, `requirements-kravlista`,
@@ -63,7 +64,7 @@ Agenterna anropas som `android:<namn>`. De är generella och läser det repospec
 
 | Agent | När | Läser i repot |
 |---|---|---|
-| `granskare` | Före varje PR (`implement-issue` steg 8): diffen mot de fem reglerna och mockup-regeln, rapport i en tabell. Sessionens modell. | `CLAUDE.md` och `android-projekt` → **Granskning** |
+| `granskare` | Före varje PR (`arbetsflode` → Granska i rundor): diffen mot de fem reglerna och mockup-regeln, rapport i en tabell. Sessionens modell. | `CLAUDE.md` och `android-projekt` → **Granskning** |
 | `ci-doktor` | Vid rött CI: loggar, skärmdumpsdiffar och CPD-rapporter, föreslår fix utan att pusha. Sonnet. | `ci-budget` → **Felklasser** |
 | `testskrivare` | Tester på tre eller fler nivåer, fixturer. Sonnet. | `testing-strategy` → **För testskrivaren** |
 

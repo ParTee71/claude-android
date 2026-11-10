@@ -1,7 +1,7 @@
 {
   "name": "android",
-  "version": "0.18.0",
-  "description": "Gemensamma Kotlin-, Compose- och Android-regler för ReseApoteket, Dagboken, fonder och android-ui, plus arbetsreglerna, modellvalet och projekttrådarnas uppsättning för alla Mats repon",
+  "version": "0.19.0",
+  "description": "Gemensamma Kotlin-, Compose- och Android-regler för ReseApoteket, Dagboken, fonder och android-ui, plus arbetsreglerna, arbetsflödets stomme, modellvalet och projekttrådarnas uppsättning för alla Mats repon",
   "author": {
     "name": "ParTee71"
   }

@@ -67,7 +67,7 @@ mätta siffror och avsnittet **Felklasser** som agenten `android:ci-doktor` läs
 - **Lokalt före push** (repots `testing-strategy`): de kontroller ändringen berör, aldrig
   `./gradlew test` av vana. Lokala körningar kostar inga Actions-minuter – en röd CI-runda gör det.
 - **Omkörning** bara när orsaken är åtgärdad utanför koden, och först när hela körningen är klar
-  (skill `android:implement-issue`, steg 10).
+  (skill `android:arbetsflode` → Bevaka till merge).
 
 ## Anti-mönster
 

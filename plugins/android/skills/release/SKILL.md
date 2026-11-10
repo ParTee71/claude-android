@@ -26,7 +26,7 @@ Höj `versionCode` med 1, uppdatera versionsfilen (`android-projekt` → Release
 funktions-PR:en, inte vid release. Skriv versionen i PR-beskrivningen. Ren dokument-, test- eller
 CI-ändring utan effekt i appen höjer inte. Är versionen redan höjd sedan senaste tagg, höj bara
 om denna PR är allvarligare (då skrivs den befintliga README-raden om till den nya versionen).
-Agenten `android:granskare` kontrollerar höjningen (skill `android:implement-issue`, steg 8).
+Agenten `android:granskare` kontrollerar höjningen (skill `android:implement-issue` → Granska).
 
 ## Hur en release går till
 
