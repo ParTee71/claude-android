@@ -1,6 +1,6 @@
 ---
 name: arbetsregler
-description: Mats gemensamma arbetsregler för alla projekt (Android-repona, android-ui, Husjakt, VeckansMat) – när en plan i ett issue och hans ok krävs före kod, när en tråd mergar själv, instabila tester, ärliga svar, modell efter jobbet, tider i svensk tid, tokentak och agenter. Ladda innan arbete påbörjas eller planeras, innan en PR skapas eller mergas, och när det är oklart om något kräver ett ok. Trigger-ord: tid, klockslag, UTC, tokentak, pausa, agenter, parallellt, plan, issue, godkänd, plan-godkänd, kör, ok, liten ändring, merga, PR, får jag, vänta på ok, ärliga svar, modell, agent, instabilt test, flaky, omkörning, rött CI.
+description: Mats gemensamma arbetsregler för alla projekt (Android-repona, android-ui, Husjakt, VeckansMat) – när en plan i ett issue och hans ok krävs före kod, när en tråd mergar själv, instabila tester, ärliga svar, modell efter jobbet, tider i svensk tid, tokentak och agenter. Ladda innan arbete påbörjas eller planeras, innan en PR skapas eller mergas, och när det är oklart om något kräver ett ok. Trigger-ord: fråga, bekräfta, driva igenom, en PR i taget, svenska, tid, klockslag, UTC, tokentak, pausa, agenter, parallellt, plan, issue, godkänd, plan-godkänd, kör, ok, liten ändring, merga, PR, får jag, vänta på ok, ärliga svar, modell, agent, instabilt test, flaky, omkörning, rött CI.
 ---
 
 # Gemensamma arbetsregler (alla Mats projekt)
@@ -25,6 +25,18 @@ Actions-minuterna i de privata repona) – de lättas inte av något här.
   säg det, eller skriv ett tillägg i issuet och få ett nytt ok.
 - Mats beslut, även de han tar i en tråd, skrivs in i issuet eller i repots regler – inte bara i
   chatten.
+
+## Driva arbetet (Mats 2026-10-18 och 2026-11-10)
+
+- **Driv igenom utan bekräftelsefrågor.** När Mats sagt "kör" eller planen är godkänd genomförs
+  allt till merge. Fråga bara det som är viktigt: ett val som ändrar målet, något som inte går att
+  ångra (skarp data, release, radering, något som skickas utanför projektet) eller en motsägelse i
+  det han bett om. Ett val som går att ändra i efterhand görs och redovisas.
+- **En PR i taget per repo.** Nästa öppnas först när den förra är mergad, kontrollerat via GitHub
+  (`pull_request_read`), inte antaget. Gäller också trådar som arbetar parallellt i samma repo.
+- **Svar till Mats på svenska**, korta. Kod och identifierare följer repots språkregel.
+- **Mats beslut skrivs ner där nästa tråd hittar dem**: i issuet eller repots regler, och det som
+  gäller alla repon här. En tråd som bara minns ett beslut i chatten tappar det.
 
 ## Instabila tester (Mats 2026-11-10)
 
