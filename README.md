@@ -145,12 +145,19 @@ En projekttråd startar i `/home/user`, ovanför alla repon, och då laddas inge
   skills avvisas av Claude Code ("Path escapes plugin directory"), och en kopia blir gammal,
   eftersom setup-skriptet körs när miljöbilden byggs och repona hämtas på nytt när tråden startar.
   Repona ändras inte.
-- Hookarna körs via `scripts/repo-hook.mjs` med repot som
-  `CLAUDE_PROJECT_DIR`, men bara när händelsen rör repot: en ändrad fil ska ligga i repot, och
-  Stop körs bara när repot har ocommittade filer eller opushade commits. Bash-vakter (PreToolUse)
-  och SessionStart körs alltid, eftersom ett kommando kan röra repot utan att nämna en fil. Är sessionens rot repot självt gör vakten
-  ingenting, eftersom repots egna inställningar redan kör hooken. Regel 4-hooken tas inte med –
-  den körs av pluginens `regel4-dispatch`.
+- Hookarna körs via `scripts/repo-hook.mjs` med repot som `CLAUDE_PROJECT_DIR`, men bara när
+  händelsen rör repot:
+  - en ändrad fil ska ligga i repot;
+  - Stop körs bara när repot har ocommittade filer eller opushade commits;
+  - ett GitHub-verktyg (`mcp__github__*` med `owner` och `repo`) ska gälla repots eget `origin`;
+  - ett Bash-kommando ska röra repot: arbetskatalogen ligger i repot, eller kommandot nämner
+    repots namn (`cd VeckansMat`, `git -C …`, en adress med namnet i). Pekar katalogen eller
+    kommandot bara ut andra repon körs hooken inte, så en `git push` i ett repo provar inte ett
+    annat repos tester. Pekas inget repo ut körs den;
+  - SessionStart körs alltid, en gång.
+
+  Är sessionens rot repot självt gör vakten ingenting, eftersom repots egna inställningar redan
+  kör hooken. Regel 4-hooken tas inte med – den körs av pluginens `regel4-dispatch`.
 - Repots `permissions` laddas inte; de gäller bara när sessionen startar i repot.
 
 Skripten ligger i claude-android, så en ändring i dem följer med nästa session precis som pluginen.
