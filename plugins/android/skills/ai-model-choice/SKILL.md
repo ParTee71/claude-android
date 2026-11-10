@@ -27,6 +27,10 @@ agenter som anger modell (issuets **Agent · modell · effort**, agenternas `mod
 | Standard: kod, issues, flera lager, datamodell, migrering, granskning | Opus 5.5 |
 | Väldigt komplexa issues, svår arkitektur, knepiga integrationer, buggar Opus inte klarat | Fable 5.2 · medium/high |
 
+**Agenter** anger alltid en egen `model` efter jobbet, aldrig `inherit` (Mats 2026-11-10: en
+granskare ska köra lämplig modell för jobbet, precis som en tråd). Granskare: `opus`.
+CI-doktor och testskrivare: `sonnet`.
+
 ## Kostnadsspärrar för Fable 5.2
 
 - **Säg först varför.** Innan du byter till Fable 5.2: skriv kort varför uppgiften kräver den och
