@@ -27,7 +27,7 @@ Skillsen anropas som `android:<namn>`.
 | `ux-granskning` | Designkritik och UX-texter för en skärm, mockup eller skärmdump. Efter Anthropics `design-critique` och `ux-copy`. |
 | `refine-issue` | Idé eller bugg till ett förfinat issue med Definition of Done och **Agent · modell · effort**. |
 | `implement-issue` | Issue till mergad PR: en PR i taget, mockup-grind, tester, versionshöjning, granskare + `/code-review` i rundor. |
-| `arbetsregler` | Gemensamma arbetsregler för alla Mats projekt: plan i issue och ok bara för större ändringar, små direkt till PR, ärliga svar, agenter med egen modell, tider i svensk tid, tokentak och agenter vid behov. Enda källan – repons CLAUDE.md länkar hit. |
+| `arbetsregler` | Gemensamma arbetsregler för alla Mats projekt: plan i issue och ok bara för större ändringar, små direkt till PR, ärliga svar, agenter med egen modell, driva igenom utan bekräftelsefrågor, en PR i taget, tider i svensk tid, tokentak och agenter vid behov. Enda källan – repons CLAUDE.md länkar hit. |
 | `ai-model-choice` | Modellval för sessioner, agenter och issues i alla Mats projekt: Opus 5.5 som standard, Fable 5.2 bara med skäl och medium/high effort. Enda källan – repons CLAUDE.md länkar hit. |
 | `release` | Versionshöjningen i funktions-PR:en och releasen via `workflow_dispatch`, utan fråga om versionsnumret. |
 | `testing-strategy` | Regel 2 generellt: tester på varje berörd nivå, flaky är en bugg, skärmdumpar, mönster och fallgropar. Repots `testing-strategy` har nivåtabellen, hjälparna och kommandona. |
@@ -118,8 +118,9 @@ projektets repolista. Står claude-android i listan används den lokala klonen
 ```bash
 {
   CA=/home/user/claude-android
-  [ -d "$CA" ] || { CA=/opt/claude-android &&
-    git clone --depth 1 https://github.com/partee71/claude-android "$CA"; } &&
+  [ -d "$CA" ] || { CA=/opt/claude-android
+    if [ -d "$CA/.git" ]; then git -C "$CA" pull -q --ff-only
+    else git clone --depth 1 https://github.com/partee71/claude-android "$CA"; fi; } &&
   claude plugin marketplace add "$CA" &&
   claude plugin install android@claude-android
   node "$CA/scripts/repo-plugins.mjs" /home/user
@@ -130,6 +131,13 @@ projektets repolista. Står claude-android i listan används den lokala klonen
 Raden med `android-sdk.sh` står bara i miljöerna för Android (Android, Dagboken). Den lägger
 kommandoradsverktygen och licenserna i `/opt/android-sdk` (155 MB, 11 s), så att SDK:n ligger i
 miljöbilden och inte laddas ned i varje tråd. Plattform och build-tools hämtar Gradle själv.
+
+**Pluginens version i en tråd.** Skriptet körs när tråden startar och installerar den version som
+då finns på `main` (här i Generella förbättringar den lokala klonen; kontrollerat 2026-11-10 via
+`installedAt` och `gitCommitSha` i `~/.claude/plugins/installed_plugins.json`). Finns
+`/opt/claude-android` redan i en återanvänd miljöbild hämtar skriptet det senaste i stället för att
+klona; med den äldre raden (`git clone` direkt) skulle klonen misslyckas i det läget och tråden få
+den gamla versionen (om bilden återanvänds så är inte kontrollerat). Vilken version en tråd har syns med `claude plugin list`.
 
 `|| true` är nödvändigt: ett setup-skript som felar stoppar alla nya sessioner. Gick något fel
 står det i `/tmp/plugin-setup.log`. Samma block står i alla molnmiljöer (Android, Dagboken, Webb).

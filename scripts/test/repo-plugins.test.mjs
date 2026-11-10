@@ -201,8 +201,10 @@ test('vakten gör en hook som avbryts till ett synligt fel, inte ett tyst ok', (
   const base = mkdtempSync(path.join(tmpdir(), 'repon-'));
   const r = repo(base, 'r');
   const guard = path.join(path.dirname(new URL(import.meta.url).pathname), '..', 'repo-hook.mjs');
+  // Indatan är större än en pipe-buffert, så att skrivningen alltid får EPIPE när hooken dör innan
+  // den läst – det var det loppet som gjorde testet instabilt; signalen ska ändå vara det som rapporteras.
   const run = spawnSync('node', [guard, r, 'kill -9 $$'], {
-    input: JSON.stringify({ tool_input: { file_path: path.join(r, 'x') } }),
+    input: JSON.stringify({ tool_input: { file_path: path.join(r, 'x'), pad: 'x'.repeat(200_000) } }),
     env: { ...process.env, CLAUDE_PROJECT_DIR: base }, encoding: 'utf8',
   });
   assert.equal(run.status, 1);
