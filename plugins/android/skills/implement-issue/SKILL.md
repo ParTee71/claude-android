@@ -86,16 +86,8 @@ Går ett steg fel två gånger i rad flyttas det upp en nivå.
 varje del med just den agenten, modellen (`model`) och effort (`effort`) – det är det
 uttryckliga beslutet som Agent-verktygets `effort` kräver. Saknas avsnittet: komplettera issuet
 först (skill `android:refine-issue`, steg 6). Avvikelse bara uppåt (fel två gånger i rad, eller
-större risk än väntat) och motiveras i PR-beskrivningen. Modellvalet:
-
-| Uppgift | Modell |
-|---|---|
-| Uppslag och läsning – loggar, data, sökningar | Haiku |
-| Små avgränsade ändringar – en fil, en komponent, ett test | Sonnet |
-| Flera lager, datamodell, migrering, backup och granskning | Opus |
-| Väldigt komplexa issues – anges då i issuet | Fable |
-
-Opus är standard.
+större risk än väntat) och motiveras i PR-beskrivningen. Modellvalet står i skill
+`android:ai-model-choice`: Opus 5.5 är standard, Fable 5.2 bara med skäl och medium/high effort.
 
 ## Steg 6 – Implementera (tester samtidigt, inte efter)
 

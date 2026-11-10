@@ -152,18 +152,10 @@ För **buggar**: byt Föreslaget upplägg mot **Steg för att återskapa**, **F�
 **Faktiskt**, **Miljö**, och kräv regressionstestet.
 
 **Agent · modell · effort är obligatoriskt.** Varje del anger agent (repots agenter:
-`android-projekt` → Issues), modell och effort. Modell efter uppgiftens komplexitet, **Opus är
-standard**:
-
-| Uppgift | Modell |
-|---|---|
-| Uppslag och läsning – loggar, data, sökningar | Haiku |
-| Små avgränsade ändringar – en fil, en komponent, ett test | Sonnet |
-| Flera lager, datamodell, migrering, backup och granskning | Opus |
-| Väldigt komplexa issues | Fable |
-
-Datamodell, rules, migrering och backup-kedjan minst Opus · high, och Fable bara för väldigt
-komplexa issues. Ett issue utan avsnittet är inte färdigförfinat.
+`android-projekt` → Issues), modell och effort. Modellen väljs efter skill `android:ai-model-choice`:
+**Opus 5.5 är standard**, Fable 5.2 bara när uppgiften kräver det, med skälet och effort (medium
+eller high, aldrig max) i avsnittet. Datamodell, rules, migrering och backup-kedjan minst Opus · high.
+Ett issue utan avsnittet är inte färdigförfinat.
 
 Titel: `<område>: <sammanfattning i imperativ>`. Visa hela utkastet och **vänta på
 bekräftelse**. Fråga om etiketter (repots etiketter: `android-projekt` → Issues; hämta repots
