@@ -87,11 +87,16 @@ Med varm Gradle-daemon tar det 1–3 sekunder. Hinner den inte inom 25 sekunder 
 ändringen i sessionen) blir det en påminnelse om `spotlessCheck` i stället. Spotless körs inte i CI
 (CI-budgeten), så hooken är det som fångar brotten innan push.
 
-Varje besked från de två hookarna (en regel 4-träff, en Stop-blockering per repo, ett ktlint-brott
-eller en påminnelse) skriver en rad till `/tmp/claude-hooks.log` (eller `$CLAUDE_HOOKS_LOG`): tid,
+Varje besked från hookarna (en regel 4-träff, en Stop-blockering per repo, ett ktlint-brott,
+en påminnelse eller ett fynd i självkontrollen) skriver en rad till `/tmp/claude-hooks.log` (eller `$CLAUDE_HOOKS_LOG`): tid,
 hook, regel och repo, tabbseparerade. Filinnehåll och kod skrivs aldrig, och en logg som inte går att
 skriva stoppar aldrig hooken. Veckomätningen läser filen, eftersom PostToolUse-beskeden inte syns i
 sessionens händelseström.
+
+`hooks/setup-check.mjs` körs vid sessionsstart och säger till i sessionens sammanhang när
+uppsättningen inte är den som beskrivs här: en plugin som inte gick att ladda (`claude plugin list`
+säger "failed to load" – setup-skriptets logg visar bara att installationen lyckades), eller samma
+agentnamn i två repon under roten. Tyst när allt stämmer.
 
     node --test plugins/android/hooks/test/*.test.mjs
 
@@ -123,17 +128,24 @@ pluginen (Generella förbättringar) har det.
 
 #### Repons egna skills, agenter och hookar i projekttrådar
 
-En projekttråd startar i `/home/user`, ovanför alla repon, och då laddas inget repos `.claude/`.
-Sista raden i blocket ovan kör `scripts/repo-plugins.mjs`, som gör varje repo under `/home/user`
-med en `.claude/` till en lokal plugin i marknadsplatsen `repon` (`/home/user/.repo-plugins`).
-Repona ändras inte.
+En projekttråd startar i `/home/user`, ovanför alla repon, och då laddas inget repos
+`.claude/settings.json`. Det som ändå når tråden kommer två vägar:
 
-- Skillsen och agenterna heter `<repo>:<namn>` i gemener, till exempel `reseapoteket:ui-style`,
-  `husjakt:granska` och agenten `husjakt:granskare`. Startar sessionen inne i ett repo heter de
-  `<namn>` som vanligt (och syns även med prefix, vilket inte stör).
-- `skills/`, `agents/` och `commands/` är symlänkar till repots kataloger, så en ändring i repot
-  slår igenom i nästa session utan något annat steg.
-- Hookarna i repots `.claude/settings.json` körs via `scripts/repo-hook.mjs` med repot som
+- **Skills och agenter hittar Claude Code själv** i varje repos `.claude/` under roten (iakttaget
+  2026-11-10, #37). En skill heter `<namn>`. Finns samma namn i flera repon får de övriga
+  katalogens namn som prefix, med katalogens skiftläge: `fonder:ui-style`, `Dagboken:ui-style`.
+  Vilket repo som står utan prefix beror på vilka repon tråden har, så en skill som finns i flera
+  repon väljs efter beskrivningen (den börjar med repots namn), inte efter prefixet.
+- **Agenter får aldrig prefix.** Samma agentnamn i två repon ger en enda agent, och den andra
+  försvinner tyst. Agenter som finns i flera repon heter därför `<repo>-<namn>`
+  (`fonder-byggare`, `husjakt-granskare`); en agent som bara finns i ett repo behåller sitt namn.
+- **Hookarna** i repots `.claude/settings.json` laddas av sista raden i blocket ovan:
+  `scripts/repo-plugins.mjs` gör varje repo med hookar till en lokal plugin i marknadsplatsen
+  `repon` (`/home/user/.repo-plugins`). Pluginen bär bara hookar. En plugin som länkar in repots
+  skills avvisas av Claude Code ("Path escapes plugin directory"), och en kopia blir gammal,
+  eftersom setup-skriptet körs när miljöbilden byggs och repona hämtas på nytt när tråden startar.
+  Repona ändras inte.
+- Hookarna körs via `scripts/repo-hook.mjs` med repot som
   `CLAUDE_PROJECT_DIR`, men bara när händelsen rör repot: en ändrad fil ska ligga i repot, och
   Stop körs bara när repot har ocommittade filer eller opushade commits. Bash-vakter (PreToolUse)
   och SessionStart körs alltid, eftersom ett kommando kan röra repot utan att nämna en fil. Är sessionens rot repot självt gör vakten

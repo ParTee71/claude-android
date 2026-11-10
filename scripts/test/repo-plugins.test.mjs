@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readlinkSync, existsSync } from 'node:fs';
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, lstatSync, existsSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
@@ -32,26 +32,35 @@ test('pluginnamn blir gemener utan otillåtna tecken', () => {
   assert.equal(pluginName('/x/Mitt Repo'), 'mitt-repo');
 });
 
-test('varje repo med .claude blir en plugin med symlänkar och en marknadsplats', () => {
+test('varje repo med hookar blir en plugin med bara hookar, och en marknadsplats', () => {
   const base = mkdtempSync(path.join(tmpdir(), 'repon-'));
-  const rese = repo(base, 'ReseApoteket', { agents: true });
-  repo(base, 'Husjakt', { skills: false, settings: HOOKS });
+  repo(base, 'ReseApoteket', { agents: true });
+  repo(base, 'Husjakt', { agents: true, settings: HOOKS });
   mkdirSync(path.join(base, 'utan-claude'));
   const { out, plugins } = build(base);
   assert.equal(out, path.join(base, '.repo-plugins'));
-  assert.deepEqual(plugins.sort(), ['husjakt', 'reseapoteket']);
+  // ReseApoteket har skills och agenter men inga hookar: ingen plugin (Claude Code hittar dem själv).
+  assert.deepEqual(plugins, ['husjakt']);
   const market = JSON.parse(readFileSync(path.join(out, '.claude-plugin/marketplace.json'), 'utf8'));
   assert.equal(market.name, 'repon');
-  assert.deepEqual(market.plugins.map((p) => p.source).sort(), ['./husjakt', './reseapoteket']);
-  assert.equal(readlinkSync(path.join(out, 'reseapoteket/skills')), path.join(rese, '.claude/skills'));
-  assert.equal(readlinkSync(path.join(out, 'reseapoteket/agents')), path.join(rese, '.claude/agents'));
-  assert.ok(!existsSync(path.join(out, 'husjakt/skills')));
-  assert.equal(JSON.parse(readFileSync(path.join(out, 'reseapoteket/.claude-plugin/plugin.json'), 'utf8')).name, 'reseapoteket');
+  assert.deepEqual(market.plugins.map((p) => p.source), ['./husjakt']);
+  assert.deepEqual(readdirSync(path.join(out, 'husjakt')).sort(), ['.claude-plugin', 'hooks']);
+  assert.equal(JSON.parse(readFileSync(path.join(out, 'husjakt/.claude-plugin/plugin.json'), 'utf8')).name, 'husjakt');
+  assert.deepEqual(Object.keys(JSON.parse(readFileSync(path.join(out, 'husjakt/hooks/hooks.json'), 'utf8')).hooks), ['Stop']);
+});
+
+test('ingen genererad plugin innehåller en symlänk (Claude Code avvisar länkar ut ur pluginen)', () => {
+  const base = mkdtempSync(path.join(tmpdir(), 'repon-'));
+  repo(base, 'Husjakt', { agents: true, settings: HOOKS });
+  repo(base, 'VeckansMat', { settings: HOOKS });
+  const { out } = build(base);
+  const links = readdirSync(out, { recursive: true }).filter((f) => lstatSync(path.join(out, f)).isSymbolicLink());
+  assert.deepEqual(links, []);
 });
 
 test('en ny körning bygger om från början', () => {
   const base = mkdtempSync(path.join(tmpdir(), 'repon-'));
-  repo(base, 'a');
+  repo(base, 'a', { settings: HOOKS });
   build(base);
   assert.deepEqual(build(base).plugins, ['a']);
 });

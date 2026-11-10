@@ -1,25 +1,26 @@
 #!/usr/bin/env node
-// Gör varje repos `.claude/` under en gemensam rot till en lokal plugin, så att repots egna
-// skills, agenter och hookar laddas även när sessionen startar ovanför repona (projekttrådar i
-// claude.ai startar i `/home/user`, och då läses inget repos `.claude/`). Körs av miljöns
-// setup-skript; repona ändras inte.
+// Gör hookarna i varje repos `.claude/settings.json` under en gemensam rot till en lokal plugin,
+// så att de körs även när sessionen startar ovanför repona (projekttrådar i claude.ai startar i
+// `/home/user`, och då läses inget repos `settings.json`). Körs av miljöns setup-skript; repona
+// ändras inte.
 //
-// Varje repo blir pluginen `<repo i gemener>` i marknadsplatsen `repon` under `<rot>/.repo-plugins`:
-// - `skills/`, `agents/` och `commands/` är symlänkar till repots kataloger, så en ändrad skill
-//   slår igenom direkt. Skillsen heter `<repo>:<namn>`, så samma namn i två repon krockar inte.
-// - Hookarna i repots `.claude/settings.json` går via `repo-hook.mjs`, som bara kör dem när
-//   händelsen rör repot (se där). Regel 4-hooken hoppas över: pluginens `regel4-dispatch` kör den.
+// Varje repo med hookar blir pluginen `<repo i gemener>` i marknadsplatsen `repon` under
+// `<rot>/.repo-plugins`. Hookarna går via `repo-hook.mjs`, som bara kör dem när händelsen rör
+// repot (se där). Regel 4-hooken hoppas över: pluginens `regel4-dispatch` kör den.
+//
+// Pluginen bär bara hookar (#37). Skills och agenter hittar Claude Code själv i repots
+// `.claude/` under roten; en plugin som länkar dit avvisas ("Path escapes plugin directory"),
+// och en kopia blir gammal eftersom setup-skriptet körs innan repona hämtas på nytt.
 //
 //   node repo-plugins.mjs [rot] [--no-install]
 
-import { existsSync, readdirSync, readFileSync, mkdirSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, mkdirSync, rmSync, writeFileSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 export const MARKETPLACE = 'repon';
 export const GUARD = path.join(path.dirname(fileURLToPath(import.meta.url)), 'repo-hook.mjs');
-const LINKED = ['skills', 'agents', 'commands'];
 
 /** Pluginnamn: gemener, bara a–z, 0–9 och bindestreck. */
 export const pluginName = (dir) => path.basename(dir).toLowerCase().replace(/[^a-z0-9-]+/g, '-');
@@ -48,17 +49,13 @@ export function convertHooks(repo, settings) {
   return out;
 }
 
-/** Repona direkt under roten som har något att ladda. */
+/** Repona direkt under roten som har hookar att ladda. */
 export function reposUnder(base) {
   if (!existsSync(base)) return [];
   return readdirSync(base, { withFileTypes: true })
     .filter((d) => d.isDirectory() && !d.name.startsWith('.'))
     .map((d) => path.join(base, d.name))
-    .filter((repo) => {
-      const claude = path.join(repo, '.claude');
-      return LINKED.some((k) => existsSync(path.join(claude, k)))
-        || Object.keys(convertHooks(repo, readSettings(repo))).length > 0;
-    });
+    .filter((repo) => Object.keys(convertHooks(repo, readSettings(repo))).length > 0);
 }
 
 /** Bygger marknadsplatsen på nytt och returnerar pluginnamnen. */
@@ -71,17 +68,11 @@ export function build(base, out = path.join(base, '.repo-plugins')) {
     const dir = path.join(out, name);
     mkdirSync(path.join(dir, '.claude-plugin'), { recursive: true });
     writeFileSync(path.join(dir, '.claude-plugin/plugin.json'), JSON.stringify({
-      name, version: '0.0.0', description: `${path.basename(repo)}: repots egna skills, agenter och hookar`,
+      name, version: '0.0.0', description: `${path.basename(repo)}: repots egna hookar`,
     }, null, 2));
-    for (const k of LINKED) {
-      const src = path.join(repo, '.claude', k);
-      if (existsSync(src)) symlinkSync(src, path.join(dir, k));
-    }
-    const hooks = convertHooks(repo, readSettings(repo));
-    if (Object.keys(hooks).length > 0) {
-      mkdirSync(path.join(dir, 'hooks'));
-      writeFileSync(path.join(dir, 'hooks/hooks.json'), JSON.stringify({ hooks }, null, 2));
-    }
+    mkdirSync(path.join(dir, 'hooks'));
+    writeFileSync(path.join(dir, 'hooks/hooks.json'),
+      JSON.stringify({ hooks: convertHooks(repo, readSettings(repo)) }, null, 2));
     plugins.push(name);
   }
   writeFileSync(path.join(out, '.claude-plugin/marketplace.json'), JSON.stringify({

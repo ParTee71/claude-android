@@ -1,18 +1,41 @@
 {
   "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/setup-check.mjs\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ],
     "PostToolUse": [
       {
         "matcher": "Edit|Write|MultiEdit",
         "hooks": [
-          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/regel4-dispatch.mjs\"", "timeout": 20 },
-          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/ktlint-check.mjs\"", "timeout": 30 }
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/regel4-dispatch.mjs\"",
+            "timeout": 20
+          },
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/ktlint-check.mjs\"",
+            "timeout": 30
+          }
         ]
       }
     ],
     "Stop": [
       {
         "hooks": [
-          { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/regel4-dispatch.mjs\" --stop", "timeout": 60 }
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/regel4-dispatch.mjs\" --stop",
+            "timeout": 60
+          }
         ]
       }
     ]
