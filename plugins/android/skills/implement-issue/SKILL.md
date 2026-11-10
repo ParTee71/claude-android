@@ -1,191 +1,93 @@
 ---
 name: implement-issue
-description: Genomföra ett GitHub-issue, en bugg, en funktion eller ett underhållsjobb från issue till mergad PR — kontrollera att föregående PR är mergad, förstå arbetet, mockup för ny GUI, återbruk av delade delar, implementera med tester på varje nivå, höj versionen, självgranska med agenten android:granskare och /code-review i rundor, committa, pusha, öppna PR och bevaka den. Repodetaljerna står i repots android-projekt. Use when the user wants to "implement issue #N", "fix this bug", "build this feature", "do this ticket", "pick up #N", or hands off from refine-issue. Trigger-ord: genomför, implementera, kör #N, kör nästa, driv på, fixa buggen, bygg funktionen, ta issue, PR.
+description: Genomföra ett GitHub-issue, en bugg, en funktion eller ett underhållsjobb i ett Android-repo från issue till mergad PR – stommen i skill android:arbetsflode plus Android-delarna – mockup för ny GUI, återbruk av delade delar och android-ui, implementera med tester på varje nivå, datakedjan, höj versionen, android:granskare och /code-review, emulatortesterna. Repodetaljerna står i repots android-projekt. Use when the user wants to "implement issue #N", "fix this bug", "build this feature", "do this ticket", "pick up #N", or hands off from refine-issue. Trigger-ord: genomför, implementera, kör #N, kör nästa, driv på, fixa buggen, bygg funktionen, ta issue, PR.
 ---
 
-# Genomföra ett issue (bugg · funktion · underhåll)
+# Genomföra ett issue i ett Android-repo
 
-Motsvarigheten till `android:refine-issue`: driver en ändring från issue till PR enligt de fem
-reglerna i repots CLAUDE.md. Hoppa inte över steg – reglerna är definitionen av klart.
-Repodetaljerna (owner/repo, basbranch, lager, datakedjan, agenter, kommandon) står i repots
-`android-projekt` → avsnittet **Arbetsflöde**; där pluginen och repot krockar gäller repot.
+**Stommen står i skill `android:arbetsflode` → Issue till PR** (förra PR:en, förstå, bygg,
+kontroller, granskningsrundor, en push, PR-texten, bevakning, konflikter, merge). Följ den steg
+för steg; den här skillen säger vad som läggs till i ett Android-repo, under stommens
+stegnummer. Repodetaljerna (owner/repo, basbranch, lager, datakedjan, agenter, kommandon) står i
+repots `android-projekt` → **Arbetsflöde**; där pluginen och repot krockar gäller repot.
 
 > **Tester körs lokalt före push, CI bekräftar** (repots skill `testing-strategy`, "Innan du
-> anser dig klar"). Kan något inte köras lokalt får CI testa – säg det i PR:en. Tester mot en
-> databas körs bara mot emulatorn, aldrig mot den riktiga databasen.
+> anser dig klar"). Tester mot en databas körs bara mot emulatorn, aldrig mot den riktiga databasen.
 
-## Steg 0 – Föregående PR och branch (alltid först)
+Skälet till en PR i taget är konkret här: parallella PR:er mot samma bas krockar nästan alltid
+på kravlistan, README och versionen.
 
-En PR i taget mot basbranchen (`master` om inte `android-projekt` → Arbetsflöde säger annat),
-och sessionen har normalt en enda arbetsbranch.
+## 1. Förstå – Android-tillägg
 
-1. Hämta den senaste PR:en från arbetsbranchen med `mcp__github__list_pull_requests`
-   (owner och repo ur `android-projekt`, head `<branch>`, state `all`) och
-   `mcp__github__pull_request_read`. **Lita aldrig på ett antagande eller på att någon sagt
-   "mergad" – fråga GitHub.**
-2. **Mergad** → `git fetch origin master && git checkout -B <branch> origin/master`. Avsluta
-   bevakningen av den gamla PR:en (`unsubscribe_pr_activity`) och ta bort dess check-in.
-3. **Öppen** → säg direkt till användaren att den inte är mergad och att nytt arbete annars
-   hamnar i samma PR. Vänta på besked, eller förbered arbetet **ocommittat** i arbetskatalogen
-   och committa först när föregående PR är mergad (en väntande commit får Stop-hooken att
-   klaga på opushat arbete).
-   **Återställ aldrig branchen från `master` innan mergen bekräftats** – det tappar
-   PR:ens commits lokalt.
-4. Ingen PR alls → skapa branchen från `origin/master`. Committa aldrig direkt på `master`.
+- Kommentarer med rubriken "Tillägg" ändrar eller kompletterar kontraktet. Issuets
+  **Återbruk** hör till kontraktet.
+- Oklart eller riskabelt omfång → `android:refine-issue` först.
+- Mockup: tabellen i skill `android:mockup`; mallen och datan i `android-projekt` → "Mockup".
 
-Skälet är konkret: parallella PR:er mot samma bas krockar nästan alltid på kravlistan,
-README och versionen.
+## 2. Bygg – Android-tillägg
 
-## Steg 1 – Förstå arbetet
-
-- Hämta issuet **och dess kommentarer**: `mcp__github__issue_read` (metod `get` och
-  `get_comments`). Acceptanskriterier, Design, Återbruk och **Agent · modell · effort** är
-  kontraktet; kommentarer med rubriken "Tillägg" ändrar eller kompletterar det och gäller före
-  issuetexten.
-- **Större eller liten?** Skill `android:arbetsregler`: en större ändring kräver ett issue med
-  plan och Mats ok ("kör" eller `plan-godkänd`); en liten går direkt till PR med raden
-  `Liten ändring: <varför>`. Osäker → större.
-- Oklart eller riskabelt omfång → kör `android:refine-issue` först eller bekräfta omfånget.
-- Klassa: bugg, funktion eller underhåll.
-
-## Steg 2 – Mockup (ny GUI)
-
-Kräver issuet ny eller tydligt ändrad GUI (tabellen i skill `android:mockup`; mallen och datan i
-`android-projekt` → "Mockup") och det finns ingen godkänd mockup under **Design** → gör
-mockupen, visa den och **vänta på ok** innan kod.
-
-## Steg 3 – Återskapa (bugg) / sikta (funktion)
-
-- **Bugg:** exakt återskapande, förväntat mot faktiskt, hitta felande kodväg. Reproduktionen
-  blir ett test som faller.
-- **Funktion/underhåll:** exakt var ändringen görs och vilket synligt utfall som betyder klart.
-
-## Steg 4 – Hitta befintliga mönster och delade delar
+**Hitta mönster och delade delar först.**
 
 - Öppna en syskon-ViewModel/skärm/repository och följ dess form (skill `android:android-dev`).
-- Slå upp komponenter, ramar och byggstenar i repots skill `shared-ui-components`. Lista vilka
-  som används. Rör du en känd dubblett – slå ihop den först.
-- Saknas något delat → planera det som **egen commit före** featuren.
-- Delen finns i biblioteket **android-ui** (import `se.partee71.ui.*`) → ändringen görs där, inte
-  i appen (skill `android-dev` → android-ui). Ordningen är: issue och PR i ParTee71/android-ui med
-  test, skärmdump och höjd version i `gradle.properties` → merge → tagg `v<version>` (publicerar)
-  → appens PR höjer versionen i katalogen och använder den nya parametern. Appens PR väntar tills
-  versionen är publicerad; en PR i taget per repo.
-- Data → repots skill `data-safety-backup` (och datalagrets skill, se `android-projekt` →
-  Arbetsflöde). Repots domänskills (beräkningar, larm, externa källor) står i samma avsnitt.
-- Mappa till kravlistans ID:n (repots skill `requirements-kravlista`) och befintliga tester.
+- Slå upp komponenter, ramar och byggstenar i repots skill `shared-ui-components`. Rör du en
+  känd dubblett – slå ihop den först. Saknas något delat → egen commit före funktionen.
+- Delen finns i **android-ui** (import `se.partee71.ui.*`) → ändringen görs där, inte i appen
+  (skill `android-dev` → android-ui): PR i ParTee71/android-ui med test, skärmdump och höjd
+  version → merge → tagg `v<version>` (publicerar) → appens PR höjer versionen i katalogen.
+  Appens PR väntar tills versionen är publicerad.
+- Data → repots skill `data-safety-backup`; domänskills (beräkningar, larm, externa källor):
+  `android-projekt` → Arbetsflöde. Mappa till kravlistans ID:n (repots `requirements-kravlista`).
 
-## Steg 5 – Planera och delegera
+**Delegera på rätt nivå:** huvudsessionen orkestrerar och granskar; repots agenter står i
+`android-projekt` → Arbetsflöde. Tester på tre eller fler nivåer till agenten
+`android:testskrivare`. Går ett steg fel två gånger i rad flyttas det upp en nivå. Saknas
+Agent · modell · effort i issuet: komplettera det först (`android:refine-issue`).
 
-Kort plan: filer, ordning, tester, datakedjan, krav, version. Arkitektoniskt betydande eller
-tvetydigt → fråga användaren innan kod (`AskUserQuestion` där det finns, annars ett
-beslutskort eller en kort fråga i tråden).
+**Implementera:** `Compose → ViewModel(StateFlow<UiState>) → Repository → datalagret`, Hilt,
+fel mappas i datalagret.
 
-**Delegera på rätt nivå:** huvudsessionen orkestrerar och granskar; repots agenter och vad de
-tar står i `android-projekt` → Arbetsflöde. Tester på tre eller fler nivåer till agenten `android:testskrivare`.
-Går ett steg fel två gånger i rad flyttas det upp en nivå.
-
-**Kör agenten som issuet anger.** Läs issuets avsnitt **Agent · modell · effort** och starta
-varje del med just den agenten, modellen (`model`) och effort (`effort`) – det är det
-uttryckliga beslutet som Agent-verktygets `effort` kräver. Saknas avsnittet: komplettera issuet
-först (skill `android:refine-issue`, steg 6). Avvikelse bara uppåt (fel två gånger i rad, eller
-större risk än väntat) och motiveras i PR-beskrivningen. Modellvalet står i skill
-`android:ai-model-choice`: Opus 5.5 är standard, Fable 5.2 bara med skäl och medium/high effort.
-
-## Steg 6 – Implementera (tester samtidigt, inte efter)
-
-`Compose → ViewModel(StateFlow<UiState>) → Repository → datalagret`, Hilt, fel mappas i
-datalagret (repots kedja: `android-projekt` → Arbetsflöde).
-
-- **Bugg:** regressionstest som faller först, sedan minsta ändringen som gör det grönt.
-  Utöka inte omfånget medan du är där.
-- **Funktion:** delade delar först (egen commit), sedan featuren ovanpå. Listskärmar och
-  formulär på repots ramar (skill `shared-ui-components`). Injicera dispatchers.
-- **Persisterad data:** hela kedjan i samma ändring (repots skill `data-safety-backup`).
-- **Version:** ändrar PR:en appens beteende höjs versionen i samma ändring (avsnittet
-  Versionshöjning i skill `android:release`), med raden i README:s versionshistorik.
-- Svenska UI-strängar i `strings.xml`; återkommande texter finns redan – återanvänd.
+- Listskärmar och formulär på repots ramar (`shared-ui-components`). Injicera dispatchers.
+- **Persisterad data:** hela kedjan i samma ändring (repots `data-safety-backup`).
+- **Version:** avsnittet Versionshöjning i skill `android:release`, med raden i README:s
+  versionshistorik.
+- Svenska UI-strängar i `strings.xml`; återanvänd återkommande texter.
 - Logga aldrig innehåll eller PII; semantik och tryckytor i komponenterna.
 - Hooken `regel4-check` säger till direkt om ett förbjudet mönster skrivs – rätta innan du går vidare.
 
-## Steg 7 – Tester på varje berörd nivå
+**Tester på varje berörd nivå** (repots `testing-strategy`): kontraktstesterna för skärmar på
+ramarna, testa bara det unika; nya komponenter får skärmdump ljust + mörkt och plats i
+`ComponentGallery`.
 
-Enligt repots skill `testing-strategy`: kör kontraktstesterna för skärmar på ramarna, testa bara
-det unika; uppdatera – ta aldrig bort eller försvaga – befintliga tester; nya komponenter
-får skärmdump ljust + mörkt och plats i `ComponentGallery`.
+- Skärmdumpstoleransen är repots parameter. Höj den aldrig för grönt – spela in på nytt bara
+  vid avsiktlig designändring.
+- **Manifest eller byggfiler ändrade** → lint och release-bygget lokalt före push (kommandona i
+  `android-projekt` → Arbetsflöde); de körs inte i PR-flödet (repots `ci-budget`).
 
-- **Skärmdumpar:** toleransen i jämförelsen är repots parameter (repots `testing-strategy`).
-  Höj den aldrig för att få grönt – en avvikelse spelas in på nytt bara vid avsiktlig designändring.
-- **Manifest eller byggfiler ändrade** → kör lint och release-bygget lokalt före push
-  (kommandona i `android-projekt` → Arbetsflöde). De körs inte i PR-flödet (repots `ci-budget`).
-- **Flaky är en bugg:** hitta grundorsaken och gör testet deterministiskt. Kör aldrig bara om.
+## 4. Granska – Android-tillägg
 
-## Steg 8 – Självgranskning
+Granskaren är agenten **`android:granskare`**. Den kontrollerar också att en funktions-PR har
+höjt versionen (semver efter ändringen, `versionCode` +1, raden i README:s versionshistorik) och
+att en ren dokument-, test- eller CI-ändring inte har gjort det – saknad höjning är ❌.
+`/code-review` körs dessutom när ändringen rör något i repots lista (`android-projekt` → Arbetsflöde).
 
-Kör agenten **`android:granskare`** på diffen. Varje ❌ åtgärdas; ett ⚠️ åtgärdas om det är litet,
-annars nämns det i PR:en. Spåra varje acceptanskriterium till kod eller test och till
-issuets **Verifiering** – kör de kommandona. Kan du inte det är du inte klar.
+## 5. PR – Android-tillägg
 
-Granskaren kontrollerar också att **en funktions-PR har höjt versionen** (semver efter
-ändringen, `versionCode` +1, raden i README:s versionshistorik) – och att en ren dokument-,
-test- eller CI-ändring inte har gjort det. Saknad höjning är ❌.
+- Titel `<område>: <sammanfattning>`; repots commit-områden i `android-projekt` → Arbetsflöde.
+- PR-texten säger hur ändringen uppfyller de fem reglerna, krav-ID:n som ändrats eller
+  uppfylls, och byggtidseffekt vid nya beroenden. Repots tillägg: `android-projekt` → Arbetsflöde.
 
-Rör ändringen domänlogik, datalagret, schemat eller rules, backup-kedjan, en extern källa eller
-en delad ram/komponent (repots lista: `android-projekt` → Arbetsflöde) – eller är diffen större
-än ett par filer – kör dessutom den inbyggda **`/code-review`** på diffen, *efter* `android:granskare`
-och innan push. Granskaren kontrollerar reglerna; `/code-review` letar buggar. Verifiera
-varje fynd och åtgärda de verkliga. Rena dokument- och strängändringar behöver den inte.
+## 6. Bevaka – Android-tillägg
 
-Ändras koden efter granskningen (rättningar av fynden) granskas rättningarna igen – `android:granskare`
-och `/code-review` på bara det som ändrats sedan förra rundan, och bara mot ❌ och buggar –
-innan push. Rundorna slutar när en runda inte hittar något ❌; ⚠️ i en senare runda nämns i
-PR:en i stället för att starta en ny. En PR går aldrig ut med kod som ingen granskning sett.
+- Rött CI → agenten **`android:ci-doktor`**.
+- Emulatorjobbet går ofta kvar efter att Gradle-jobbet fallerat – vänta tills körningen är
+  `completed` innan en omkörning (`rerun_failed_jobs`).
+- **Körs emulatortesterna** (när PR:en rör koden de testar – repots `ci-budget`) **måste de vara
+  gröna för merge.** Ett hoppat jobb är okej, ett rött eller avbrutet är det inte.
 
-## Steg 9 – Commit och push
+## Anti-mönster (utöver stommens)
 
-- Konventionella meddelanden, gärna svenska: `feat(<område>): …`, `fix(<område>): …`,
-  `test(...)`, `docs(...)`, `chore(...)` (repots områden: `android-projekt` → Arbetsflöde).
-  Små, sammanhängande commits. `Closes #N` i den sista. Avsluta med de commit-trailers som
-  sessionen anger.
-- Kör kontrollerna lokalt (repots skill `testing-strategy`) och pusha först när de är gröna.
-- `git push -u origin <branch>` (försök igen med backoff vid nätverksfel).
-
-## Steg 10 – Pull request och bevakning
-
-- Mot `master`. Titel `<område>: <sammanfattning>`. Innehåll: vad som ändrats, hur det
-  uppfyller de fem reglerna, krav-ID:n som ändrats eller uppfylls, **versionen** (eller "ingen
-  höjning – ren dokument/test/CI"), testplan (och vad som inte kunde köras lokalt),
-  byggtidseffekt vid nya beroenden, `Closes #N`, och för GUI: mockup-länk + skärmdumpar
-  (ljust/mörkt). Repots tillägg: `android-projekt` → Arbetsflöde.
-- **Prenumerera direkt** (`subscribe_pr_activity`) utan att fråga, och schemalägg en check-in.
-  Bevaka tills den är mergad eller stängd; hantera granskningskommentarer.
-- Rött CI → agenten **`android:ci-doktor`** diagnostiserar; fixa grundorsaken och pusha. Kör aldrig
-  bara om.
-- **En omkörning startas först när hela körningen är klar.** Emulatorjobbet går ofta kvar efter
-  att Gradle-jobbet fallerat; en omkörning (`rerun_failed_jobs`) mitt i den slutar i
-  "startup_failure" och kostar en runda. Vänta på att körningen är `completed`, eller avbryt den
-  först. Omkörning bara när orsaken är åtgärdad utanför koden (t.ex. en secret som lagts in på nytt).
-- **Körs emulatortesterna** (instrumenttesterna, när PR:en rör koden de testar – repots
-  `ci-budget`) **måste de vara gröna för merge.** Ett hoppat jobb är okej, ett rött eller
-  avbrutet är det inte.
-- Har användaren bett om automatisk merge när den är grön: kontrollera att alla
-  kontroller på senaste commit är gröna och att PR:en är konfliktfri, merga med
-  `merge_pull_request` (metod `merge`, `expectedHeadSha`), avsluta bevakningen och gå
-  tillbaka till steg 0 för nästa issue.
-- **Verktyg:** GitHub MCP (`mcp__github__*`); ingen `gh`.
-
-## Flera issues
-
-Ett i taget, var och en med egen PR. Blanda aldrig orelaterade ändringar i samma branch.
-Att förbereda nästa på en lokal branch går bra – det är PR-öppning till merge som sekvenseras.
-
-## Anti-mönster
-
-- Påbörja nästa issue utan att ha frågat GitHub om föregående PR är mergad.
-- Kod för ny GUI utan godkänd mockup.
-- Bugfix utan regressionstest.
 - Persisterad ändring utan hela datakedjan och rundturstest.
 - En lokal variant av en delad komponent eller ram, eller en tredje kopia av en känd dubblett.
 - Publik `fun` på en ViewModel när projektet använder sealed events + `onEvent()`.
-- Ta bort eller `@Ignore`:a ett rött test, höja skärmdumpstoleransen eller köra om för grönt.
-- Funktions-PR utan versionshöjning, eller en agent med annan modell eller effort än issuet anger.
+- `@Ignore` på ett rött test eller höjd skärmdumpstolerans för att bli grönt.
+- Funktions-PR utan versionshöjning.

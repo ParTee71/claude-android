@@ -42,7 +42,7 @@ står i appens versionskatalog och skill `shared-ui-components`.
   en default som bevarar dagens utseende i båda apparna, med test och skärmdump i biblioteket.
 - **Ändra en delad komponent i biblioteket, inte i appen.** Flödet är: PR i android-ui med höjd
   version → tagg `v<version>` publicerar → en PR per app som höjer versionen i katalogen, en PR i
-  taget (skill `implement-issue`, steg 4).
+  taget (skill `implement-issue` → Bygg).
 - **Färger, typsnitt och apptoner stannar i appen.** Appen fyller i `AppTheme(…)`; biblioteket
   har bara strukturen (`ExtendedColors`, `AppShapes`, `AppTypography`, `Spacing`, `Tone.Primary`).
 - fonder använder inte biblioteket (eget tema).

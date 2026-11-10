@@ -50,7 +50,7 @@ jobbens namn och avsnittet **Felklasser** med repots egna felsorter. Det generel
   CPD-tröskeln eller skärmdumpstoleransen, lägga till en allowlist- eller baslinjerad eller
   höja en timeout för att bli grön.
 - En omkörning är bara meningsfull när orsaken är åtgärdad utanför koden, och först när hela
-  körningen är klar (skill `android:implement-issue`, steg 10).
+  körningen är klar (skill `android:arbetsflode` → Bevaka till merge).
 - Håll förslaget minimalt: det felet kräver, inget mer.
 
 ## Rapport
