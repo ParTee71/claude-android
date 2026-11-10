@@ -117,7 +117,7 @@ function main() {
   if (r.stdout) process.stdout.write(r.stdout);
   if (r.stderr) process.stderr.write(r.stderr);
   if (r.status !== null) return r.status;
-  process.stderr.write(`repohooken i ${path.basename(repo)} kördes inte klart: ${r.error?.message ?? r.signal}\n`);
+  process.stderr.write(`repohooken i ${path.basename(repo)} kördes inte klart: ${r.signal ?? r.error?.message}\n`);
   return 1;
 }
 
