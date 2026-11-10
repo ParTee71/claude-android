@@ -22,6 +22,6 @@ jobs:
         with:
           node-version: 22
       - name: Hooktester och uppsättningsskripten
-        run: node --test scripts/test/*.test.mjs plugins/android/hooks/test/*.test.mjs
+        run: node --test scripts/test/*.test.mjs plugins/android/hooks/test/*.test.mjs plugins/android/checks/test/*.test.mjs
       - name: Skalskript
         run: bash -n scripts/android-sdk.sh

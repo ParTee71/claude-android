@@ -68,9 +68,17 @@ Agenterna anropas som `android:<namn>`. De är generella och läser det repospec
 | `testskrivare` | Tester på tre eller fler nivåer, fixturer. Sonnet. | `testing-strategy` → **För testskrivaren** |
 
 Agenter som är för olika mellan repona (`arkitekt`, `byggare`, `db-inspektor`) stannar i repots
-`.claude/agents/`. Repona med dokumentkontrollen `check-links.mjs` listar pluginens skills i
-`.github/scripts/plugin-skills.txt` och agenter i `plugin-agents.txt`, eftersom CI inte når
-pluginen – uppdatera dem när pluginen får eller tappar en skill eller agent.
+`.claude/agents/`.
+
+## Dokumentkontroller
+
+`checks/doc-checks.mjs [repo]` är Android-reponas dokumentkontroll (#59). Den kontrollerar att
+relativa länkar och nämnda skills och agenter finns, där `android:<namn>` läses ur pluginen själv.
+Den kontrollerar också att `.claude/README.md` listar exakt repots skills och agenter, och att
+CI-tabellen i skill `ci-budget` (mellan `ci-table:start` och `ci-table:end`) har samma filter som
+`android.yml`. Framåtreferenser står i repots `.github/scripts/link-allowlist.txt`.
+`checks/instrumented-paths.mjs` skriver filtret `instrumented` som git-pathspecs åt `release.yml`.
+Repots CI checkar ut claude-android (`plugins/android`) till `.claude-android` och kör båda därifrån.
 
 ## Hook
 
