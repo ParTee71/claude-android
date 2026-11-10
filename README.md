@@ -104,6 +104,13 @@ uppsättningen inte är den som beskrivs här: en plugin som inte gick att ladda
 säger "failed to load" – setup-skriptets logg visar bara att installationen lyckades), eller samma
 agentnamn i två repon under roten. Tyst när allt stämmer.
 
+`hooks/android-start.mjs` är Android-reponas gemensamma sessionsstart i molnet (#55): för varje
+Android-repo under roten (katalog med `gradlew` och `settings.gradle.kts`) skrivs `sdk.dir` i
+`local.properties` om raden saknas, Maven Central-spegeln (`hooks/maven-central-mirror.init.gradle.kts`)
+läggs i `~/.gradle/init.d/` mot 429-svar, och en rad var säger om SDK:n finns och om `GPR_TOKEN`
+saknas för ett repo som hämtar android-ui. Utanför molnet gör den ingenting. Repons egna
+`session-start.sh` har bara kvar det som är repots eget.
+
     node --test plugins/android/hooks/test/*.test.mjs
 
 ## Installation
