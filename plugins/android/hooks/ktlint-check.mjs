@@ -9,16 +9,72 @@
 // root-`build.gradle.kts` som nämner spotless. Spotless IDE-hook skriver det formaterade
 // resultatet till stdout, så filen ändras aldrig; bara rena formateringsavvikelser lämnas åt
 // spotlessApply. Regelbrott ger exit 2 med raderna på stderr, så att Claude rättar dem.
-// Hinner Gradle inte (kall daemon) får Claude en påminnelse om spotlessCheck i stället.
+// Kan kontrollen inte köras säger hooken det i stället för att se ut som ett godkännande (#39):
+// - Hinner Gradle inte (kall daemon, Gradle laddas ned) eller är Gradle-cachen tom (hooken kör
+//   `--offline`, och en ny molnsession har inga beroenden) blir det en påminnelse om
+//   spotlessCheck, och cachen värms i bakgrunden med samma körning utan `--offline`. Efter en
+//   till två minuter fungerar kontrollen.
+// - Faller Gradle av annat skäl blir det en påminnelse med felets första rad.
+// Påminnelsen kommer högst en gång per tio minuter och repo, inte för varje fil.
 // Varje besked (regelbrott eller påminnelse) ger en rad i beskedloggen (log.mjs).
 
-import { readFileSync, existsSync } from 'node:fs';
-import { spawnSync } from 'node:child_process';
+import { readFileSync, existsSync, statSync, writeFileSync } from 'node:fs';
+import { spawn, spawnSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { logBesked } from './log.mjs';
 
 const TIMEOUT_MS = Number(process.env.KTLINT_HOOK_TIMEOUT_MS) || 25000;
+const REMIND_MS = 10 * 60 * 1000;
+const COLD_CACHE = /offline mode|No cached version|was not found in any of the following sources|Could not resolve/i;
+
+/** Sant högst en gång per tio minuter och repo; markören ligger i tempkatalogen. */
+function firstInAWhile(root) {
+  const id = createHash('sha1').update(root).digest('hex').slice(0, 12);
+  const marker = path.join(process.env.KTLINT_HOOK_STATE_DIR || tmpdir(), `claude-ktlint-blind-${id}`);
+  try {
+    if (Date.now() - statSync(marker).mtimeMs < REMIND_MS) return false;
+  } catch {
+    // Ingen markör än.
+  }
+  try {
+    writeFileSync(marker, '');
+  } catch {
+    // Går markören inte att skriva kommer påminnelsen oftare, inget värre.
+  }
+  return true;
+}
+
+/** Värmer Gradle-cachen i bakgrunden: samma körning med nät. Filen skrivs aldrig om. */
+function warm(root, file) {
+  try {
+    spawn(path.join(root, 'gradlew'), ['-q', 'spotlessApply', `-PspotlessIdeHook=${file}`, '-PspotlessIdeHookUseStdOut'], {
+      cwd: root, env: { ...process.env, LC_ALL: 'C.UTF-8' }, detached: true, stdio: 'ignore',
+    }).unref();
+  } catch {
+    // Gick den inte att starta gäller påminnelsen ändå.
+  }
+}
+
+/** Felets första rad ur Gradles utskrift, utan stackspår. */
+export function gradleError(stderr) {
+  const lines = String(stderr ?? '').split('\n').map((l) => l.trim());
+  const at = lines.findIndex((l) => l.startsWith('* What went wrong:'));
+  const line = at >= 0 ? lines[at + 1] : lines.find((l) => l && !l.startsWith('Picked up '));
+  return (line ?? 'okänt fel').slice(0, 200);
+}
+
+/** Kontrollen kunde inte köras: en påminnelse (inte för varje fil), aldrig ett tyst godkännande. */
+function blind(root, file, regel, text) {
+  if (!firstInAWhile(root)) return 0;
+  logBesked('ktlint-check', regel, root);
+  process.stdout.write(JSON.stringify({
+    hookSpecificOutput: { hookEventName: 'PostToolUse', additionalContext: `${text} Kör ./gradlew spotlessCheck före push.` },
+  }));
+  return 0;
+}
 
 function readInput() {
   try {
@@ -69,19 +125,20 @@ function check(input) {
     ['-q', '--offline', 'spotlessApply', `-PspotlessIdeHook=${file}`, '-PspotlessIdeHookUseStdOut'],
     { cwd: root, env: { ...process.env, LC_ALL: 'C.UTF-8' }, encoding: 'utf8', timeout: TIMEOUT_MS },
   );
+  const name = path.basename(file);
   if (r.error?.code === 'ETIMEDOUT' || r.signal) {
-    logBesked('ktlint-check', 'timeout', root);
-    process.stdout.write(JSON.stringify({
-      hookSpecificOutput: {
-        hookEventName: 'PostToolUse',
-        additionalContext: `ktlint hann inte köras på ${path.basename(file)} (Gradle startar). Kör ./gradlew spotlessCheck före push.`,
-      },
-    }));
-    return 0;
+    warm(root, file);
+    return blind(root, file, 'timeout', `ktlint hann inte köras på ${name} (Gradle startar; cachen värms i bakgrunden).`);
   }
   if (r.status === 0) return 0;
   const found = violations(r.stderr ?? '');
-  if (found.length === 0) return 0;
+  if (found.length === 0) {
+    if (COLD_CACHE.test(r.stderr ?? '')) {
+      warm(root, file);
+      return blind(root, file, 'kall-cache', `ktlint kunde inte köras på ${name}: Gradle-cachen är tom. Den värms i bakgrunden (en till två minuter); tills dess kontrolleras inga Kotlin-filer.`);
+    }
+    return blind(root, file, 'gradle-fel', `ktlint kunde inte köras på ${name}, Gradle föll: ${gradleError(r.stderr)}`);
+  }
   logBesked('ktlint-check', [...new Set(found.map((v) => /\(([^)]+)\)/.exec(v)[1]))].join(','), root);
   process.stderr.write(
     `ktlint (compose-rules) i ${path.relative(root, file)}:\n${found.join('\n')}\n`

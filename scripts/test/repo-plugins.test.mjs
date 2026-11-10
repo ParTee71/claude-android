@@ -73,6 +73,19 @@ test('regel 4-hooken hoppas över och övriga går via vakten med timeout kvar',
   assert.match(h.command, /repo-hook\.mjs' '\/home\/user\/Husjakt' 'node "\$CLAUDE_PROJECT_DIR"/);
 });
 
+test('en SessionStart som letar upp sin katalog via regel4-check följer med (ReseApotekets form)', () => {
+  const find = 'f=$(ls "$CLAUDE_PROJECT_DIR"/.claude/hooks/regel4-check.mjs "$CLAUDE_PROJECT_DIR"/*/.claude/hooks/regel4-check.mjs 2>/dev/null | head -n1); [ -z "$f" ] || ';
+  const hooks = convertHooks('/home/user/ReseApoteket', {
+    hooks: {
+      SessionStart: [{ hooks: [{ type: 'command', command: `${find}"$(dirname "$f")/session-start.sh"` }] }],
+      PostToolUse: [{ matcher: 'Edit|Write|MultiEdit', hooks: [{ type: 'command', command: `${find}node "$f"`, timeout: 10 }] }],
+      Stop: [{ hooks: [{ type: 'command', command: `${find}node "$f" --stop`, timeout: 20 }] }],
+    },
+  });
+  assert.deepEqual(Object.keys(hooks), ['SessionStart']);
+  assert.match(hooks.SessionStart[0].hooks[0].command, /session-start\.sh/);
+});
+
 test('vakten: fil i repot, fil utanför och sessionens egen rot', () => {
   const r = '/home/user/Husjakt';
   assert.equal(shouldRun(r, { tool_input: { file_path: `${r}/src/a.ts` } }, '/home/user'), true);
