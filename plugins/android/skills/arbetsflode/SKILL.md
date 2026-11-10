@@ -18,7 +18,7 @@ själv, instabila tester och modellval står i `arbetsregler` och `ai-model-choi
 
 ## Idé till issue
 
-1. **Fånga och klassa:** återge begäran i en eller två meningar – funktion, bugg eller
+1. **Fånga och klassa:** har du ett nummer, läs issuet **och kommentarerna** först. Återge begäran i en eller två meningar – funktion, bugg eller
    underhåll. Sök dubbletter bland öppna och stängda issues; ett stängt `beslut`-issue är ofta
    svaret.
 2. **Klargör bara det som inte går att härleda** ur begäran, koden eller ett avgjort issue.
@@ -37,7 +37,7 @@ Mallen (repots skill lägger till rubriker):
 ```markdown
 ## Sammanfattning         <vad och varför>
 ## Design                 <mockup-länk, eller "ingen GUI-ändring">
-## Föreslaget upplägg     (bugg: Steg för att återskapa · Förväntat · Faktiskt)
+## Föreslaget upplägg     <inom omfång> (bugg: Steg för att återskapa · Förväntat · Faktiskt)
 ## Berörda filer
 ## Testplan               <nivå: vad>
 ## Verifiering            <kommandon och utfall som visar att issuet är klart>
@@ -102,8 +102,8 @@ Kan du inte köra den är du inte klar.
 
 ### 5. Commit, en push, PR
 
-- Konventionella meddelanden (`feat(område): …`, `fix(…)`, `docs(…)`, `test(…)`, `chore(…)`),
-  små och sammanhängande, `Closes #N` i den sista, sessionens trailers sist.
+- Repots commit-stil (annars konventionella: `feat(område): …`, `fix(…)`, `docs(…)`, `test(…)`,
+  `chore(…)`), små och sammanhängande commits, `Closes #N` i den sista, sessionens trailers sist.
 - **En push**, när allt är grönt lokalt. Aldrig för att se om CI blir grönt, aldrig en tom commit.
 - PR-texten:
   - vad och varför, `Closes #N` – eller raden `Liten ändring: <varför>`,
@@ -121,8 +121,8 @@ Kan du inte köra den är du inte klar.
   PR:en (`pull_request_read`, `get`) och läs `mergeable_state`. `dirty` → lös konflikten.
   `unknown` → hämta igen. En PR med konflikt får inget nytt CI-utfall – grönt från förut betyder
   inte att den går att merga.
-- **Konflikt:** merga in `origin/<bas>` i grenen – ingen rebase, ingen force-push på en gren
-  någon annan använder. Version och ändringslogg: ta basens som de är och tillämpa
+- **Konflikt:** merga in `origin/<bas>` i grenen – ingen rebase och ingen force-push för att lösa
+  en konflikt. Version och ändringslogg: ta basens som de är och tillämpa
   versionsregeln på nytt; höj bara om PR:en är allvarligare. Kod: lös bara när båda sidornas
   avsikt är tydlig, annars fråga Mats med filerna och vad som krockar. Kör kontrollerna, pusha.
 - **Rött CI** → repots ci-doktor diagnostiserar; rätta grundorsaken och pusha. Kör aldrig bara
