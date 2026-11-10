@@ -83,8 +83,11 @@ når den privata pluginen. Är projektroten själv ett repo med egen hook gör p
 IDE-hook (`-PspotlessIdeHook`), så filen skrivs aldrig om och reglerna läses från repots egen
 `ktlintRules`. Regelbrott som `spotlessApply` inte kan rätta, till exempel `lambda-param-in-effect`
 och `content-slot-reused`, blockerar med regel och rad. Ren formatering lämnas åt `spotlessApply`.
-Med varm Gradle-daemon tar det 1–3 sekunder. Hinner den inte inom 25 sekunder (kall daemon, första
-ändringen i sessionen) blir det en påminnelse om `spotlessCheck` i stället. Spotless körs inte i CI
+Med varm Gradle-daemon tar det 1–3 sekunder. Kan kontrollen inte köras säger hooken det, högst en
+gång per tio minuter och repo: hinner den inte inom 25 sekunder, eller är Gradle-cachen tom (hooken
+kör `--offline`, och en ny molnsession har inga beroenden), blir det en påminnelse om
+`spotlessCheck`, och cachen värms i bakgrunden med samma körning utan `--offline` (mätt 78 s i
+ReseApoteket; därefter 2 s per fil). Faller Gradle av annat skäl står felets första rad i påminnelsen. Spotless körs inte i CI
 (CI-budgeten), så hooken är det som fångar brotten innan push.
 
 Varje besked från hookarna (en regel 4-träff, en Stop-blockering per repo, ett ktlint-brott,
@@ -117,8 +120,13 @@ projektets repolista. Står claude-android i listan används den lokala klonen
   claude plugin marketplace add "$CA" &&
   claude plugin install android@claude-android
   node "$CA/scripts/repo-plugins.mjs" /home/user
+  bash "$CA/scripts/android-sdk.sh"
 } >> /tmp/plugin-setup.log 2>&1 || true
 ```
+
+Raden med `android-sdk.sh` står bara i miljöerna för Android (Android, Dagboken). Den lägger
+kommandoradsverktygen och licenserna i `/opt/android-sdk` (155 MB, 11 s), så att SDK:n ligger i
+miljöbilden och inte laddas ned i varje tråd. Plattform och build-tools hämtar Gradle själv.
 
 `|| true` är nödvändigt: ett setup-skript som felar stoppar alla nya sessioner. Gick något fel
 står det i `/tmp/plugin-setup.log`. Samma block står i alla molnmiljöer (Android, Dagboken, Webb).
@@ -157,7 +165,8 @@ En projekttråd startar i `/home/user`, ovanför alla repon, och då laddas inge
   - SessionStart körs alltid, en gång.
 
   Är sessionens rot repot självt gör vakten ingenting, eftersom repots egna inställningar redan
-  kör hooken. Regel 4-hooken tas inte med – den körs av pluginens `regel4-dispatch`.
+  kör hooken. Regel 4-hooken (PostToolUse och Stop) tas inte med –
+  den körs av pluginens `regel4-dispatch`.
 - Repots `permissions` laddas inte; de gäller bara när sessionen startar i repot.
 
 Skripten ligger i claude-android, så en ändring i dem följer med nästa session precis som pluginen.

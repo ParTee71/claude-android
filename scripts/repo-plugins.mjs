@@ -6,7 +6,8 @@
 //
 // Varje repo med hookar blir pluginen `<repo i gemener>` i marknadsplatsen `repon` under
 // `<rot>/.repo-plugins`. Hookarna går via `repo-hook.mjs`, som bara kör dem när händelsen rör
-// repot (se där). Regel 4-hooken hoppas över: pluginens `regel4-dispatch` kör den.
+// repot (se där). Regel 4-hooken (PostToolUse och Stop) hoppas över: pluginens `regel4-dispatch`
+// kör den.
 //
 // Pluginen bär bara hookar (#37). Skills och agenter hittar Claude Code själv i repots
 // `.claude/` under roten; en plugin som länkar dit avvisas ("Path escapes plugin directory"),
@@ -35,13 +36,19 @@ function readSettings(repo) {
   }
 }
 
+/**
+ * Är det repots regel 4-hook? Den körs av pluginens `regel4-dispatch` (efter en ändring och vid
+ * Stop). En SessionStart som bara letar upp sin katalog via samma filnamn är det inte (#39).
+ */
+const runsRegel4 = (event, command) => (event === 'PostToolUse' || event === 'Stop') && command.includes('regel4-check');
+
 /** Repots hookar omskrivna till pluginens format, via vakten. Tomt objekt om inga finns. */
 export function convertHooks(repo, settings) {
   const out = {};
   for (const [event, groups] of Object.entries(settings.hooks ?? {})) {
     for (const group of groups ?? []) {
       const hooks = (group.hooks ?? [])
-        .filter((h) => h.type === 'command' && h.command && !h.command.includes('regel4-check'))
+        .filter((h) => h.type === 'command' && h.command && !runsRegel4(event, h.command))
         .map((h) => ({ ...h, command: `node ${shQuote(GUARD)} ${shQuote(repo)} ${shQuote(h.command)}` }));
       if (hooks.length > 0) (out[event] ??= []).push({ ...group, hooks });
     }
