@@ -20,7 +20,8 @@ kör bara läsande kommandon (`git diff`, `git log`, `git show`, `git status`, `
    inte in i rapporten. Repots egna ligger i `.claude/skills/<namn>/SKILL.md`; pluginens heter
    `android:<namn>` (t.ex. `android:mockup`, `android:release` → Versionshöjning,
    `android:testing-strategy`, `android:ci-budget`).
-3. Hämta diffen: `git diff origin/master...HEAD` (eller det intervall du fått).
+3. Hämta diffen mot repots basgren: `base=$(git symbolic-ref --short refs/remotes/origin/HEAD 2>/dev/null || echo origin/master)`
+   och `git diff "$base"...HEAD` (eller det intervall du fått). android-ui har `main`, apparna `master`.
 4. Läs de ändrade filerna i sin helhet där sammanhanget behövs.
 
 ## Kontrollpunkter (generella – repots avsnitt Granskning kompletterar)
@@ -96,7 +97,8 @@ skrivs som ✅ med förklaring i Fynd.
 **❌ bara för fel som du kan visa i koden**: ett beteende som blir fel eller ett brott mot en
 av reglerna ovan, med fil:rad. Det som är smak, en möjlig förbättring eller ett fall som inte
 kan inträffa är ⚠️ eller inget alls – en granskare som letar hittar alltid något, och att
-jaga varje fynd ger överbyggd kod. Pröva varje fynd mot koden innan du rapporterar det.
+jaga varje fynd ger överbyggd kod. Pröva varje fynd mot koden innan du rapporterar det. Det omvända gäller lika mycket: ett
+verkligt fel mildras aldrig till ⚠️, och ett nej skrivs som ett nej.
 Granskar du rättningar efter en tidigare runda: titta bara på det som ändrats sedan dess.
 
 Därunder högst fem punkter med de viktigaste fynden, mest allvarligt först, en eller två

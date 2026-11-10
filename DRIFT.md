@@ -85,13 +85,28 @@ Maven-paket med `GPR_TOKEN` och behöver inte heller stå där.
 
 | Miljö | Nätverk | Miljövariabler (namn) |
 |---|---|---|
-| Android | full | `GPR_TOKEN`, `GPR_USER`, `GH_TOKEN`, `FIREBASE_SERVICE_ACCOUNT` (läs, `reseapoteket`), `LC_ALL` |
+| Android | full | `GPR_TOKEN`, `GPR_USER`, `FIREBASE_SERVICE_ACCOUNT` (läs, `reseapoteket`), `LC_ALL` |
 | Dagboken | full | `GPR_TOKEN`, `GPR_USER`, Dagbokens nycklar |
 | Webb | full | inga Cloudflare-nycklar – deploy sker i Actions |
 | Default | inbyggd, går inte att ta bort | används inte |
 
 **Regel:** läsnycklar i miljöer, skrivnycklar bara i GitHub-hemligheter eller i det egna
 projektets miljö. Cloudflare-tokens aldrig i en Claude-miljö.
+
+## Schemalagda uppgifter
+
+Ligger på Mats konto (claude.ai → schemalagda uppgifter). Varje körning startar en ny tråd i
+projektet Generella förbättringar och läser bara; ingen skriver till repona.
+
+| Uppgift | Schema (svensk tid) | Läser | Ger |
+|---|---|---|---|
+| Veckomätning AI-miljön | måndagar 06:56 | alla sju repon, veckans sessioner, `claude plugin list` | dokument "Veckomätning v<NN>": laddning, används, används aldrig, fallgropar, modellval, CI-kostnad |
+| Veckoläget | måndagar 07:51 | alla sju repon via GitHub | dokument "Veckoläget v<NN>": PR:er, issues, CI, vad som väntar på Mats |
+
+Avstängda 2026-11-10 (#41), kan slås på igen: den gamla veckomätningen och "Veckosammanfattning
+fonder" väckte en sparad tråd och slutade köras efter 2026-10-19; "Veckosammanfattning Husjakt,
+Dagboken, ReseApoteket" rapporterade samma sak som Veckoläget. En ny uppgift ska starta en ny
+tråd vid varje körning, inte väcka en sparad.
 
 ## Rutiner
 

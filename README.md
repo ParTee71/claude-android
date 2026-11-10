@@ -1,8 +1,10 @@
 # claude-android
 
-Gemensam Claude Code-plugin för ReseApoteket, Dagboken och fonder. Här ligger det som
-är generellt för de tre Android-repona: Kotlin, Compose, Navigation 3 och arbetssättet
-kring issues och PR:er. Det som är eget för ett repo stannar i repots `.claude/`, och där
+Gemensam Claude Code-plugin för Mats projekt. Det mesta är för Android-repona
+ReseApoteket, Dagboken, fonder och biblioteket android-ui: Kotlin, Compose, Navigation 3 och
+arbetssättet kring issues och PR:er. Några delar gäller alla repon, också Husjakt och
+VeckansMat: modellvalet (`ai-model-choice`), uppsättningen för projekttrådar
+(`scripts/repo-plugins.mjs`, `repo-hook.mjs`) och sessionsstartens kontroll (`setup-check`). Det som är eget för ett repo stannar i repots `.claude/`, och där
 de krockar gäller repots CLAUDE.md.
 
 Vilka konton, tjänster, nycklar, Claude-miljöer och gratiskvoter alla repona hänger på står
