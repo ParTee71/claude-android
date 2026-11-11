@@ -14,7 +14,7 @@ Actions-minuterna i de privata repona) – de lättas inte av något här.
 | Ändring | Före kod | PR och merge |
 |---|---|---|
 | **Större:** nytt eller ändrat beteende, ny skärm eller vy, flera lager, datamodell, migrering, ny källa eller nytt beroende, eller ett verkligt vägval | Plan i ett GitHub-issue (`refine-issue`) och Mats ok: "kör" i tråden eller etiketten `plan-godkänd` | Tråden driver till merge utan fler frågor när CI är grönt |
-| **Liten:** buggfix med uppenbar rättning, dokument, kommentarer, text, beroendebump utan API-ändring, test, ren städning i en fil | Inget issue krävs | PR-texten har raden `Liten ändring: <varför>`; tråden mergar själv när CI är grönt |
+| **Liten:** buggfix där själva rättningen är liten (en fil, inget nytt beteende) – en uppenbar bugg som kräver en större åtgärd är större –, dokument, kommentarer, text, beroendebump utan API-ändring, test, ren städning i en fil | Inget issue krävs | PR-texten har raden `Liten ändring: <varför>`; tråden mergar själv när CI är grönt |
 
 - **Osäker? Då är den större.** Att kalla något litet för att slippa vänta är just felet som
   VeckansMat beslut 0018 skrevs efter (en PR mergades utan att ägaren sett planen).
