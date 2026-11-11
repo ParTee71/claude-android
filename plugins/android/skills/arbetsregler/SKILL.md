@@ -25,6 +25,11 @@ Actions-minuterna i de privata repona) – de lättas inte av något här.
   säg det, eller skriv ett tillägg i issuet och få ett nytt ok.
 - Mats beslut, även de han tar i en tråd, skrivs in i issuet eller i repots regler – inte bara i
   chatten.
+- **Varje issue skrivs med repots förfina-skill** (`android:refine-issue`, VeckansMats
+  `refine-issue`, Husjakts `forfina`; tabellen i `arbetsflode`) – även när en granskning, en
+  annan tråd eller koordinatorn skapar det. Ett issue skrivet direkt med `issue_write` är ett
+  utkast: det förfinas innan det genomförs. Inget issue behövs för en liten ändring, men skrivs
+  ett, gäller samma sak.
 
 ## Driva arbetet (Mats 2026-10-18 och 2026-11-10)
 

@@ -69,6 +69,8 @@ grenen, state `all`, och `pull_request_read`). Lita aldrig på ett antagande ell
   Acceptanskriterier, Verifiering, Utanför omfång, Design och Agent · modell · effort är
   kontraktet; senare kommentarer från Mats går före brödtexten.
 - **Större eller liten** enligt `arbetsregler`. Större utan godkänd plan → idé till issue först.
+- **Inte förfinat** – mallens avsnitt saknas (Agent · modell · effort, Verifiering, Acceptanskriterier
+  eller repots motsvarighet) → repots förfina-skill först, och issuet skrivs om innan kod.
 - **`beslut`-etikett eller "väntar på beslut"** → bygg inte förbi den; säg vilken fråga som blockerar.
 - Mockup krävs och saknas under **Design** → gör den och vänta på ok innan kod.
 
