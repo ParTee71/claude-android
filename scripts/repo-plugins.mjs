@@ -18,6 +18,8 @@
 // sökväg, så att en spärr från ett repo bara gäller där. `allow` tas inte med: en tillåtelse från
 // ett repo ska inte gälla i ett annat. Befintliga nycklar i filen lämnas orörda.
 // `env` får en standardmodell för agenter utan egen modell (`DEFAULT_ENV`) om den inte redan är satt.
+// Den verkar bara när setup-skriptet faktiskt körs; miljöbilden återanvänds annars (#67), så
+// variabeln ska också ligga i molnmiljöns inställningar. Hooken `repo-sync` förnyar spärrarna.
 //
 //   node repo-plugins.mjs [rot] [--no-install] [--settings <fil>]
 

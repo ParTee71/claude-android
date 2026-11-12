@@ -121,6 +121,11 @@ läggs i `~/.gradle/init.d/` mot 429-svar, och en rad var säger om SDK:n finns 
 saknas för ett repo som hämtar android-ui. Utanför molnet gör den ingenting. Repons egna
 `session-start.sh` har bara kvar det som är repots eget.
 
+`hooks/repo-sync.mjs` (#67) lägger vid sessionsstart i molnet in repons `deny` och `ask` i
+`~/.claude/settings.json` igen ur de färska klonerna, med samma funktioner som
+`scripts/repo-plugins.mjs`, eftersom filen annars är miljöbildens (se Installation). Den säger också
+till när `CLAUDE_CODE_SUBAGENT_MODEL` saknas i miljön. Tyst när allt stämmer.
+
     node --test plugins/android/hooks/test/*.test.mjs
 
 ## Installation
@@ -149,12 +154,27 @@ Raden med `android-sdk.sh` står bara i miljöerna för Android (Android, Dagbok
 kommandoradsverktygen och licenserna i `/opt/android-sdk` (155 MB, 11 s), så att SDK:n ligger i
 miljöbilden och inte laddas ned i varje tråd. Plattform och build-tools hämtar Gradle själv.
 
-**Pluginens version i en tråd.** Skriptet körs när tråden startar och installerar den version som
-då finns på `main` (här i Generella förbättringar den lokala klonen; kontrollerat 2026-11-10 via
-`installedAt` och `gitCommitSha` i `~/.claude/plugins/installed_plugins.json`). Finns
-`/opt/claude-android` redan i en återanvänd miljöbild hämtar skriptet det senaste i stället för att
-klona; med den äldre raden (`git clone` direkt) skulle klonen misslyckas i det läget och tråden få
-den gamla versionen (om bilden återanvänds så är inte kontrollerat). Vilken version en tråd har syns med `claude plugin list`.
+**Vad som följer med en merge – och vad som inte gör det** (#67, kontrollerat 2026-11-12).
+Molnmiljön kör inte setup-skriptet i varje tråd: en ny tråd kan starta från en sparad bild av
+setup-resultatet (i provet två dagar gammal; när bilden byggs om är inte kontrollerat – troligen när
+setup-skriptet ändras). Det betyder:
+
+- **Pluginen följer med där claude-android står i projektets repolista** (Generella
+  förbättringar). Marknadsplatsen är då katalogen `/home/user/claude-android`, som klonas färskt
+  för varje tråd, och pluginen läses därifrån. I appprojekten är katalogen `/opt/claude-android`,
+  som setup-skriptet klonade – den ligger i bilden och är lika gammal som den. Där följer pluginen
+  alltså **inte** med en merge förrän bilden byggs om (inte åtgärdat, se #67). Vilken version
+  tråden kör syns med `claude plugin list` ("Read from"). `installed_plugins.json` visar versionen
+  från när bilden byggdes och säger inget om vad som läses.
+- **Repons spärrar förnyas av hooken `repo-sync`** vid varje sessionsstart (nedan), eftersom
+  `~/.claude/settings.json` annars är bildens. Claude Code läser om spärrarna direkt.
+- **Standardmodellen för agenter måste ligga i miljön.** `env` i `settings.json` läses bara när
+  sessionen startar, och en variabel kan inte sättas från en session. Lägg därför
+  `CLAUDE_CODE_SUBAGENT_MODEL=opus` under Environment variables i varje molnmiljö (Android,
+  Dagboken, Webb). Saknas den säger `repo-sync` till.
+- **Stubbarna i `/home/user/.repo-plugins`** är bildens. De anropar repons hookar live, så de blir
+  bara inaktuella när ett repo får en ny hookhändelse eller ett nytt repo med hookar tillkommer.
+  Då behöver bilden byggas om (ändra setup-skriptet, t.ex. en daterad kommentarsrad).
 
 `|| true` är nödvändigt: ett setup-skript som felar stoppar alla nya sessioner. Gick något fel
 står det i `/tmp/plugin-setup.log`. Samma block står i alla molnmiljöer (Android, Dagboken, Webb).
@@ -201,11 +221,11 @@ En projekttråd startar i `/home/user`, ovanför alla repon, och då laddas inge
   kommandon och följer med som de är, alltså i alla repon. `allow` följer inte med, eftersom en
   tillåtelse från ett repo inte ska gälla i ett annat; det ger bara fler frågor. Prövat
   2026-11-10: en `Read` av en spärrad fil i fonder nekades.
-- Samma skript sätter `env.CLAUDE_CODE_SUBAGENT_MODEL` till `opus` om den inte redan är satt,
-  så att agenter utan egen modell inte ärver en Fable-tråds modell (skill `ai-model-choice` →
-  Inbyggda agenttyper).
+- Samma skript sätter `env.CLAUDE_CODE_SUBAGENT_MODEL` till `opus` om den inte redan är satt.
+  Det verkar bara i en tråd vars bild byggts efter 0.20.0; i övrigt gäller variabeln i miljön
+  (ovan, och skill `ai-model-choice` → Inbyggda agenttyper).
 
-Skripten ligger i claude-android, så en ändring i dem följer med nästa session precis som pluginen.
+Skripten ligger i claude-android, men körs av setup-skriptet och följer därför bara med när bilden byggs om; spärrarna förnyas ändå av `repo-sync`.
 
     node --test scripts/test/*.test.mjs
 
