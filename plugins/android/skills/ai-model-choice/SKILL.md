@@ -32,15 +32,17 @@ granskare ska köra lämplig modell för jobbet, precis som en tråd). Granskare
 CI-doktor och testskrivare: `sonnet`.
 
 **Inbyggda agenttyper** har ingen frontmatter att sätta modell i. `Explore` och `Plan` är
-definierade som `inherit` och kör alltid trådens modell om inte `model` anges vid start; på en
-Fable-tråd blir en sökning annars Fable. Ange därför alltid `model` när de startas: `haiku` för
-`Explore` och ren sökning eller läsning, `opus` för `Plan` och `general-purpose`.
-Skyddsnät: setup-skriptet (`scripts/repo-plugins.mjs`) sätter `CLAUDE_CODE_SUBAGENT_MODEL` till
-Opus 5.5. Den gäller agenter utan `model` alls – `general-purpose` och kopierade agentfiler som
-VeckansMats `svelte-file-editor` – men inte `Explore` och `Plan`, eftersom `inherit` går före
-variabeln (läst i Claude Code 2.1.322, 2026-11-12; i äldre versioner, t.ex. 2.1.42, vann
-variabeln över all modell – då blir även `sonnet`-agenter Opus). Bara i molnsessioner; lokalt
-gäller regeln ovan.
+definierade som `inherit` och ska då köra trådens modell om inte `model` anges vid start – men ett
+prov 2026-11-12 gav `Explore` Opus 5.5 på en Fable-tråd utan att variabeln nedan var satt (ett
+prov, orsaken inte utredd). Lita inte på något av det: ange alltid `model` när de startas, `haiku`
+för `Explore` och ren sökning eller läsning, `opus` för `Plan` och `general-purpose`.
+Skyddsnät: `CLAUDE_CODE_SUBAGENT_MODEL=opus` som variabel i molnmiljön (claude-android README →
+Installation; i `settings.json` verkar den inte, eftersom miljöbilden inte byggs om i varje tråd).
+Den gäller agenter utan `model` alls – `general-purpose` och kopierade agentfiler som
+VeckansMats `svelte-file-editor` – men enligt Claude Code 2.1.322 inte `Explore` och `Plan`,
+eftersom `inherit` går före variabeln (i äldre versioner, t.ex. 2.1.42, vann variabeln över all
+modell – då blir även `sonnet`-agenter Opus). Hooken `repo-sync` säger till när variabeln saknas.
+Bara i molnsessioner; lokalt gäller regeln ovan.
 
 ## Kostnadsspärrar för Fable 5.2
 
