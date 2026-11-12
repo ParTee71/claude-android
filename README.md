@@ -124,7 +124,8 @@ saknas för ett repo som hämtar android-ui. Utanför molnet gör den ingenting.
 `hooks/repo-sync.mjs` (#67) lägger vid sessionsstart i molnet in repons `deny` och `ask` i
 `~/.claude/settings.json` igen ur de färska klonerna, med samma funktioner som
 `scripts/repo-plugins.mjs`, eftersom filen annars är miljöbildens (se Installation). Den säger också
-till när `CLAUDE_CODE_SUBAGENT_MODEL` saknas i miljön. Tyst när allt stämmer.
+till när `CLAUDE_CODE_SUBAGENT_MODEL` saknas i miljön, och när pluginen läses ur
+`/opt/claude-android` (miljöbildens klon, #69). Tyst när allt stämmer.
 
     node --test plugins/android/hooks/test/*.test.mjs
 
@@ -133,11 +134,13 @@ till när `CLAUDE_CODE_SUBAGENT_MODEL` saknas i miljön. Tyst när allt stämmer
 ### I molnsessioner (claude.ai/code)
 
 Molnsessioner installerar **aldrig** ett repos `enabledPlugins`. Pluginen installeras därför av
-miljöns setup-skript. Repot är publikt, så skriptet klonar det självt när det inte redan ligger i
-projektets repolista. Står claude-android i listan används den lokala klonen
-(`/home/user/claude-android`), så att en gren med ändringar i pluginen går att prova:
+miljöns setup-skript. **claude-android ska stå i varje projekts repolista** (#69): då används den
+lokala klonen (`/home/user/claude-android`), som hämtas färskt för varje tråd, och pluginen följer
+med varje merge. Saknas repot i listan klonar skriptet det till `/opt/claude-android` – en reserv
+som ligger i miljöbilden och blir gammal (nedan):
 
 ```bash
+# bild: 2026-11-12 – ändra datumet för att bygga om miljöbilden
 {
   CA=/home/user/claude-android
   [ -d "$CA" ] || { CA=/opt/claude-android
@@ -159,13 +162,19 @@ Molnmiljön kör inte setup-skriptet i varje tråd: en ny tråd kan starta från
 setup-resultatet (i provet två dagar gammal; när bilden byggs om är inte kontrollerat – troligen när
 setup-skriptet ändras). Det betyder:
 
-- **Pluginen följer med där claude-android står i projektets repolista** (Generella
-  förbättringar). Marknadsplatsen är då katalogen `/home/user/claude-android`, som klonas färskt
-  för varje tråd, och pluginen läses därifrån. I appprojekten är katalogen `/opt/claude-android`,
-  som setup-skriptet klonade – den ligger i bilden och är lika gammal som den. Där följer pluginen
-  alltså **inte** med en merge förrän bilden byggs om (inte åtgärdat, se #67). Vilken version
-  tråden kör syns med `claude plugin list` ("Read from"). `installed_plugins.json` visar versionen
-  från när bilden byggdes och säger inget om vad som läses.
+- **Pluginen följer med där claude-android står i projektets repolista.** Marknadsplatsen är då
+  katalogen `/home/user/claude-android`, som klonas färskt för varje tråd, och pluginen läses
+  därifrån. Saknas repot är katalogen `/opt/claude-android`, som setup-skriptet klonade – den
+  ligger i bilden och är lika gammal som den, och `repo-sync` säger till (#69). Ett `git pull` vid
+  sessionsstart hjälper inte: skillernas innehåll läses in när sessionen startar (prövat
+  2026-11-12), och nästa tråd startar från bilden igen. Vilken version tråden kör syns med
+  `claude plugin list` ("Read from"). `installed_plugins.json` visar versionen från när bilden
+  byggdes och säger inget om vad som läses.
+- **Bilden byggs om när miljöns inställningar ändras** (troligt, inte bevisat: bilden i miljön
+  Android byggdes om 2026-11-12 efter att en variabel lagts till). Läggs claude-android till i ett
+  projekts repolista, ändra då datumet på `# bild:`-raden i setup-skriptet i miljön projektet
+  använder, så att marknadsplatsen pekas om. Om bilden delas mellan projekt som använder samma
+  miljö är inte kontrollerat; samma repolista i alla projekt gör att det inte spelar någon roll.
 - **Repons spärrar förnyas av hooken `repo-sync`** vid varje sessionsstart (nedan), eftersom
   `~/.claude/settings.json` annars är bildens. Claude Code läser om spärrarna direkt.
 - **Standardmodellen för agenter måste ligga i miljön.** `env` i `settings.json` läses bara när
@@ -179,8 +188,8 @@ setup-skriptet ändras). Det betyder:
 `|| true` är nödvändigt: ett setup-skript som felar stoppar alla nya sessioner. Gick något fel
 står det i `/tmp/plugin-setup.log`. Samma block står i alla molnmiljöer (Android, Dagboken, Webb).
 
-Appprojekten behöver alltså inte ha claude-android i sin repolista. Ett projekt som ska ändra
-pluginen (Generella förbättringar) har det.
+Att claude-android står i ett appprojekts repolista betyder inte att tråden där ska ändra pluginen;
+ändringar i pluginen görs från Generella förbättringar.
 
 #### Repons egna skills, agenter och hookar i projekttrådar
 
