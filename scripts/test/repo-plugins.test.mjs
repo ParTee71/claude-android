@@ -251,6 +251,18 @@ test('behörigheter: inställningsfilen behåller sina nycklar och regler', () =
   assert.deepEqual(s.enabledPlugins, { 'android@claude-android': true });
   assert.deepEqual(s.permissions, { deny: ['Read(//x)', 'Read(//y)'], allow: ['Bash(ls)'], ask: ['Bash(z)'] });
   const fresh = path.join(dir, 'ny/settings.json');
-  mergeSettings(fresh, { deny: [], ask: [] });
+  mergeSettings(fresh, { deny: [], ask: [] }, {});
   assert.deepEqual(JSON.parse(readFileSync(fresh, 'utf8')), {});
+});
+
+test('env: agenter utan egen modell får Opus, och ett värde användaren satt står kvar', () => {
+  const dir = mkdtempSync(path.join(tmpdir(), 'inst-'));
+  const fresh = path.join(dir, 'ny/settings.json');
+  mergeSettings(fresh, { deny: [], ask: [] });
+  mergeSettings(fresh, { deny: [], ask: [] }); // igen: samma resultat
+  assert.deepEqual(JSON.parse(readFileSync(fresh, 'utf8')), { env: { CLAUDE_CODE_SUBAGENT_MODEL: 'opus' } });
+  const own = path.join(dir, 'egen.json');
+  writeFileSync(own, JSON.stringify({ env: { CLAUDE_CODE_SUBAGENT_MODEL: 'haiku', FOO: '1' } }));
+  mergeSettings(own, { deny: [], ask: [] });
+  assert.deepEqual(JSON.parse(readFileSync(own, 'utf8')).env, { CLAUDE_CODE_SUBAGENT_MODEL: 'haiku', FOO: '1' });
 });

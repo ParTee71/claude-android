@@ -92,8 +92,10 @@ säger PR:en; CI får bekräfta.
 
 ### 4. Granska i rundor
 
-1. Repots granskare på diffen. Blockerande fynd (❌) rättas; ett mindre (⚠️, `bör`) rättas om
-   det är litet, annars nämns det i PR:en.
+1. Repots granskare på diffen, med raderna **Titta först på** och **Kan gå sönder** (steg 5) i
+   uppdraget: granskaren börjar där men läser hela diffen och säger till om risken sitter
+   någon annanstans. Blockerande fynd (❌) rättas; ett mindre (⚠️, `bör`) rättas om det är
+   litet, annars nämns det i PR:en.
 2. Den inbyggda `/code-review` när diffen är större än ett par filer eller rör data, schema,
    en extern källa, en delad komponent eller hooks. Verifiera varje fynd; rätta de verkliga.
 3. Rättningar granskas igen – bara det som ändrats sedan förra rundan. Rundorna slutar när en
@@ -109,6 +111,10 @@ Kan du inte köra den är du inte klar.
 - **En push**, när allt är grönt lokalt. Aldrig för att se om CI blir grönt, aldrig en tom commit.
 - PR-texten:
   - vad och varför, `Closes #N` – eller raden `Liten ändring: <varför>`,
+  - **Titta först på:** de 1–3 ställen (fil:rad) där ett fel kostar mest – datamodell, codec,
+    rules, motor, workflow, hook,
+  - **Kan gå sönder:** vad som realistiskt kan gå sönder och hur det skulle märkas, eller
+    "inget utanför diffen" när det är sant – aldrig som slentrian,
   - **Verifiering** avbockad med kommandon och utfall, och vad som inte kunde köras,
   - versionen, eller "ingen höjning – ren dokument/test/CI",
   - kostnaden (Actions-minuter, byggtid, eval) när ändringen påverkar den, annars "oförändrad",
