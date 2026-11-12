@@ -201,6 +201,9 @@ En projekttråd startar i `/home/user`, ovanför alla repon, och då laddas inge
   kommandon och följer med som de är, alltså i alla repon. `allow` följer inte med, eftersom en
   tillåtelse från ett repo inte ska gälla i ett annat; det ger bara fler frågor. Prövat
   2026-11-10: en `Read` av en spärrad fil i fonder nekades.
+- Samma skript sätter `env.CLAUDE_CODE_SUBAGENT_MODEL` till `opus` om den inte redan är satt,
+  så att agenter utan egen modell inte ärver en Fable-tråds modell (skill `ai-model-choice` →
+  Inbyggda agenttyper).
 
 Skripten ligger i claude-android, så en ändring i dem följer med nästa session precis som pluginen.
 

@@ -17,6 +17,7 @@
 // eftersom en plugin inte kan bära behörigheter (#40). Sökvägar skrivs om till repots absoluta
 // sökväg, så att en spärr från ett repo bara gäller där. `allow` tas inte med: en tillåtelse från
 // ett repo ska inte gälla i ett annat. Befintliga nycklar i filen lämnas orörda.
+// `env` får en standardmodell för agenter utan egen modell (`DEFAULT_ENV`) om den inte redan är satt.
 //
 //   node repo-plugins.mjs [rot] [--no-install] [--settings <fil>]
 
@@ -137,8 +138,15 @@ export function collectPermissions(base) {
   return { deny: [...deny], ask: [...ask] };
 }
 
-/** Lägger reglerna i inställningsfilen; befintliga nycklar och regler står kvar. */
-export function mergeSettings(file, { deny, ask }) {
+/**
+ * Agenter utan egen `model` (general-purpose, kopierade agentfiler) kör annars trådens modell –
+ * på en Fable-tråd Fable. `Explore` och `Plan` är `inherit` och påverkas inte; för dem gäller
+ * regeln i skill `ai-model-choice`.
+ */
+export const DEFAULT_ENV = { CLAUDE_CODE_SUBAGENT_MODEL: 'opus' };
+
+/** Lägger reglerna och `env` i inställningsfilen; befintliga nycklar, regler och värden står kvar. */
+export function mergeSettings(file, { deny, ask }, env = DEFAULT_ENV) {
   let settings = {};
   try {
     settings = JSON.parse(readFileSync(file, 'utf8'));
@@ -150,6 +158,8 @@ export function mergeSettings(file, { deny, ask }) {
   if (deny.length > 0) permissions.deny = add(permissions.deny, deny);
   if (ask.length > 0) permissions.ask = add(permissions.ask, ask);
   if (deny.length > 0 || ask.length > 0) settings.permissions = permissions;
+  // ett värde användaren redan satt vinner
+  if (Object.keys(env).length > 0) settings.env = { ...env, ...settings.env };
   mkdirSync(path.dirname(file), { recursive: true });
   writeFileSync(file, `${JSON.stringify(settings, null, 2)}\n`);
   return settings;
@@ -167,7 +177,7 @@ function main() {
   const settingsFile = i >= 0 ? args[i + 1] : path.join(homedir(), '.claude/settings.json');
   const perms = collectPermissions(base);
   mergeSettings(settingsFile, perms);
-  console.log(`${settingsFile}: ${perms.deny.length} deny, ${perms.ask.length} ask`);
+  console.log(`${settingsFile}: ${perms.deny.length} deny, ${perms.ask.length} ask, env ${Object.keys(DEFAULT_ENV).join(', ')}`);
   const { out, plugins } = build(base);
   console.log(`${out}: ${plugins.join(', ') || 'inga repon'}`);
   if (args.includes('--no-install') || plugins.length === 0) return;

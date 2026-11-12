@@ -31,6 +31,17 @@ agenter som anger modell (issuets **Agent · modell · effort**, agenternas `mod
 granskare ska köra lämplig modell för jobbet, precis som en tråd). Granskare: `opus`.
 CI-doktor och testskrivare: `sonnet`.
 
+**Inbyggda agenttyper** har ingen frontmatter att sätta modell i. `Explore` och `Plan` är
+definierade som `inherit` och kör alltid trådens modell om inte `model` anges vid start; på en
+Fable-tråd blir en sökning annars Fable. Ange därför alltid `model` när de startas: `haiku` för
+`Explore` och ren sökning eller läsning, `opus` för `Plan` och `general-purpose`.
+Skyddsnät: setup-skriptet (`scripts/repo-plugins.mjs`) sätter `CLAUDE_CODE_SUBAGENT_MODEL` till
+Opus 5.5. Den gäller agenter utan `model` alls – `general-purpose` och kopierade agentfiler som
+VeckansMats `svelte-file-editor` – men inte `Explore` och `Plan`, eftersom `inherit` går före
+variabeln (läst i Claude Code 2.1.322, 2026-11-12; i äldre versioner, t.ex. 2.1.42, vann
+variabeln över all modell – då blir även `sonnet`-agenter Opus). Bara i molnsessioner; lokalt
+gäller regeln ovan.
+
 ## Kostnadsspärrar för Fable 5.2
 
 - **Säg först varför.** Innan du byter till Fable 5.2: skriv kort varför uppgiften kräver den och
