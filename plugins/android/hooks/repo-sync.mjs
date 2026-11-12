@@ -12,6 +12,11 @@
 // agenter måste därför ligga som variabel i molnmiljöns inställningar; hooken säger till när den
 // saknas.
 //
+// I ett projekt utan claude-android i repolistan klonar setup-skriptet pluginen till
+// `/opt/claude-android`, som ligger i miljöbilden och inte följer med en merge (#69). Ett `git pull`
+// här hjälper inte: skillernas innehåll läses in vid sessionsstart (prövat 2026-11-12), och nästa
+// tråd startar från bilden igen. Hooken säger därför bara till, med åtgärden.
+//
 // Bara i molnet (CLAUDE_CODE_REMOTE). Tyst när inget ändrats. Stoppar aldrig sessionen.
 
 import { readFileSync } from 'node:fs';
@@ -22,6 +27,10 @@ import { logBesked } from './log.mjs';
 
 // Skriptet ligger bredvid pluginen i claude-android-klonen. En plugin som installerats som kopia
 // (utanför molnet) har det inte; då gör hooken ingenting.
+/** Setup-skriptets klon när claude-android inte står i projektets repolista. */
+export const IMAGE_CLONE = '/opt/claude-android';
+const PLUGIN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+
 let lib = null;
 try {
   lib = await import('../../../scripts/repo-plugins.mjs');
@@ -39,10 +48,21 @@ function rules(file) {
 }
 
 /** Lägger repons spärrar i inställningsfilen och returnerar beskeden (tom lista = inget att säga). */
-export function run({ root, env = process.env, settingsFile = path.join(homedir(), '.claude/settings.json') }) {
+export function run({
+  root,
+  env = process.env,
+  settingsFile = path.join(homedir(), '.claude/settings.json'),
+  pluginRoot = PLUGIN_ROOT,
+}) {
   if (!lib) return [];
   const { collectPermissions, DEFAULT_ENV, mergeSettings } = lib;
   const lines = [];
+  if (pluginRoot === IMAGE_CLONE || pluginRoot.startsWith(IMAGE_CLONE + path.sep)) {
+    lines.push(
+      `Pluginen läses ur ${IMAGE_CLONE}, som ligger i miljöbilden – mergade ändringar i claude-android når inte den här tråden. ` +
+        'Lägg partee71/claude-android i projektets repolista och bygg om bilden (claude-android README → Installation).',
+    );
+  }
   const perms = collectPermissions(root);
   const before = rules(settingsFile);
   const added = [...perms.deny, ...perms.ask].filter((r) => !before.has(r));

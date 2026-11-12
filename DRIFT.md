@@ -76,12 +76,13 @@ nycklar syns för alla repon i projektet. Listorna hålls därför korta.
 | Projekt | Repon | Miljö |
 |---|---|---|
 | Generella förbättringar | alla | Android |
-| Appprojekt (ReseApoteket, Dagboken, fonder …) | bara sitt eget repo | Android (Dagboken: Dagboken) |
-| VeckansMat, Husjakt | bara sitt eget repo | Webb |
+| Appprojekt (ReseApoteket, Dagboken, fonder …) | sitt eget repo och claude-android | Android (Dagboken: Dagboken) |
+| VeckansMat, Husjakt | sitt eget repo och claude-android | Webb |
 
-claude-android behöver inte stå i appprojekten: setup-skriptet klonar det självt när det saknas
-(README → *Installation → I molnsessioner*, enda källan för blocket). android-ui läses som
-Maven-paket med `GPR_TOKEN` och behöver inte heller stå där.
+claude-android står i varje projekt, annars följer pluginen inte med en merge (#69, README →
+*Installation → I molnsessioner*, enda källan för blocket). Det kostar inget i nycklar:
+claude-android har inga hemligheter, och trådarna pushar bara till sina `claude/`-grenar.
+android-ui läses som Maven-paket med `GPR_TOKEN` och behöver inte stå där.
 
 | Miljö | Nätverk | Miljövariabler (namn) |
 |---|---|---|

@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { run } from '../repo-sync.mjs';
+import { IMAGE_CLONE, run } from '../repo-sync.mjs';
 
 const ENV_OK = { CLAUDE_CODE_SUBAGENT_MODEL: 'opus' };
 
@@ -57,4 +57,21 @@ test('en rot utan repon ger inga spärrar och rör inte filen', () => {
   const settingsFile = path.join(base, 'settings.json');
   assert.deepEqual(run({ root: path.join(base, 'saknas'), env: ENV_OK, settingsFile }), []);
   assert.throws(() => readFileSync(settingsFile));
+});
+
+test('pluginen ur miljöbildens klon sägs, med åtgärden', () => {
+  const { root, settingsFile } = setup();
+  run({ root, env: ENV_OK, settingsFile });
+  const lines = run({ root, env: ENV_OK, settingsFile, pluginRoot: path.join(IMAGE_CLONE, 'plugins/android') });
+  assert.equal(lines.length, 1);
+  assert.match(lines[0], /miljöbilden/);
+  assert.match(lines[0], /repolista/);
+});
+
+test('pluginen ur en färsk klon eller en liknande sökväg är tyst', () => {
+  const { root, settingsFile } = setup();
+  run({ root, env: ENV_OK, settingsFile });
+  for (const pluginRoot of ['/home/user/claude-android/plugins/android', `${IMAGE_CLONE}-gren/plugins/android`]) {
+    assert.deepEqual(run({ root, env: ENV_OK, settingsFile, pluginRoot }), []);
+  }
 });
