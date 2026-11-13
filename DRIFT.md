@@ -86,10 +86,20 @@ med `GPR_TOKEN` och behöver inte heller stå där.
 
 | Miljö | Nätverk | Miljövariabler (namn) |
 |---|---|---|
-| Android | full | `GPR_TOKEN`, `GPR_USER`, `FIREBASE_SERVICE_ACCOUNT` (läs, `reseapoteket`), `LC_ALL` |
-| Dagboken | full | `GPR_TOKEN`, `GPR_USER`, Dagbokens nycklar |
-| Webb | full | inga Cloudflare-nycklar – deploy sker i Actions |
+| Android | full | `GPR_TOKEN`, `GPR_USER`, `FIREBASE_SERVICE_ACCOUNT` (läs, `reseapoteket`), `LC_ALL`, `CLAUDE_CODE_SUBAGENT_MODEL`, `SLASH_COMMAND_TOOL_CHAR_BUDGET` |
+| Dagboken | full | `GPR_TOKEN`, `GPR_USER`, Dagbokens nycklar, `CLAUDE_CODE_SUBAGENT_MODEL`, `SLASH_COMMAND_TOOL_CHAR_BUDGET` |
+| Webb | full | `CLAUDE_CODE_SUBAGENT_MODEL`, `SLASH_COMMAND_TOOL_CHAR_BUDGET`; inga Cloudflare-nycklar – deploy sker i Actions |
 | Default | inbyggd, går inte att ta bort | används inte |
+
+`SLASH_COMMAND_TOOL_CHAR_BUDGET=80000` i alla tre (#73): Claude Code lägger varje skills namn och
+beskrivning i en lista med en budget i tecken (30 000 i projekttrådarna 2026-11-13). Ryms
+listan inte stryks beskrivningar helt, och skillen laddas bara om modellen gissar på namnet. Mätt
+2026-11-13 i Generella förbättringar: 118 skills, 64 675 tecken, 38 av reposkillsen utan beskrivning.
+Appprojekten och Webb räknas till runt 42 000. Inställningen `skillListingBudgetFraction` går inte,
+eftersom repots `settings.json` inte läses i projekttrådar. Kostnaden är listan själv, cirka en
+token per fyra tecken i varje tur, cachad. Varningen `Skill listing over budget` i
+`/tmp/claude-code.log` visar om talet behöver höjas (`doc-checks.mjs` skriver bara ut repots egen
+del, inte pluginens eller de inbyggda skillsen). Varje beskrivning håller taket på 1 536 tecken (README → *Dokumentkontroller*).
 
 **Regel:** läsnycklar i miljöer, skrivnycklar bara i GitHub-hemligheter eller i det egna
 projektets miljö. Cloudflare-tokens aldrig i en Claude-miljö.
