@@ -76,7 +76,7 @@ nycklar syns för alla repon i projektet. Listorna hålls därför korta.
 | Projekt | Repon | Miljö |
 |---|---|---|
 | Generella förbättringar | alla | Android |
-| Appprojekt (ReseApoteket, Dagboken, fonder …) | bara sitt eget repo | Android (Dagboken: Dagboken) |
+| Appprojekt (ReseApoteket, Dagboken, fonder …) | bara sitt eget repo | Android (även Dagboken, läst 2026-11-13) |
 | VeckansMat, Husjakt | bara sitt eget repo | Webb |
 
 Pluginen kommer från claude.ai-kontot (Customize → Plugins, marknadsplatsen `partee71/claude-android`
@@ -88,7 +88,7 @@ med `GPR_TOKEN` och behöver inte heller stå där.
 |---|---|---|
 | Android | full | `GPR_TOKEN`, `GPR_USER`, `FIREBASE_SERVICE_ACCOUNT` (läs, `reseapoteket`), `LC_ALL`, `CLAUDE_CODE_SUBAGENT_MODEL`, `SLASH_COMMAND_TOOL_CHAR_BUDGET` |
 | Dagboken | full | `GPR_TOKEN`, `GPR_USER`, Dagbokens nycklar, `CLAUDE_CODE_SUBAGENT_MODEL`, `SLASH_COMMAND_TOOL_CHAR_BUDGET` |
-| Webb | full | `CLAUDE_CODE_SUBAGENT_MODEL`, `SLASH_COMMAND_TOOL_CHAR_BUDGET`; inga Cloudflare-nycklar – deploy sker i Actions |
+| Webb | full | `CLAUDE_CODE_SUBAGENT_MODEL`, `SLASH_COMMAND_TOOL_CHAR_BUDGET`, `CLOUDFLARE_API_TOKEN` och `CLOUDFLARE_ACCOUNT_ID` (VeckansMats beslut 0005: D1 och Workers-loggar), `VECKANSMAT_ANTHROPIC_KEY` |
 | Default | inbyggd, går inte att ta bort | används inte |
 
 `SLASH_COMMAND_TOOL_CHAR_BUDGET=80000` i alla tre (#73): Claude Code lägger varje skills namn och
@@ -102,7 +102,10 @@ token per fyra tecken i varje tur, cachad. Varningen `Skill listing over budget`
 del, inte pluginens eller de inbyggda skillsen). Varje beskrivning håller taket på 1 536 tecken (README → *Dokumentkontroller*).
 
 **Regel:** läsnycklar i miljöer, skrivnycklar bara i GitHub-hemligheter eller i det egna
-projektets miljö. Cloudflare-tokens aldrig i en Claude-miljö.
+projektets miljö. En Cloudflare-token i en Claude-miljö bara begränsad till läsning och loggar
+(VeckansMats beslut 0005); deploy sker i Actions. Webbs token syns även i Husjakts trådar, men
+Husjakts drift nås via API:et (Husjakts `CLAUDE.md`). Dagboken-projektet kör i Android, så
+Dagbokens nycklar i miljön Dagboken når inte dess trådar.
 
 ## Schemalagda uppgifter
 
