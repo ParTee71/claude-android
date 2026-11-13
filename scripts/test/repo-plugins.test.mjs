@@ -73,6 +73,27 @@ test('regel 4-hooken hoppas över och övriga går via vakten med timeout kvar',
   assert.match(h.command, /repo-hook\.mjs' '\/home\/user\/Husjakt' 'node "\$CLAUDE_PROJECT_DIR"/);
 });
 
+test('onFailure följer med genom vakten och läggs inte till där det saknas (#72)', () => {
+  const hooks = convertHooks('/home/user/Husjakt', {
+    hooks: {
+      PreToolUse: [{ matcher: 'Bash', hooks: [
+        { type: 'command', command: 'node "$CLAUDE_PROJECT_DIR"/.claude/hooks/vakt.mjs', timeout: 120, onFailure: 'block' },
+        { type: 'command', command: 'node "$CLAUDE_PROJECT_DIR"/.claude/hooks/annan.mjs' },
+      ] }],
+    },
+  });
+  const [stangd, oppen] = hooks.PreToolUse[0].hooks;
+  assert.equal(stangd.onFailure, 'block');
+  assert.equal(stangd.timeout, 120);
+  assert.equal('onFailure' in oppen, false);
+  // Och i den byggda pluginens hooks.json.
+  const base = mkdtempSync(path.join(tmpdir(), 'repon-'));
+  repo(base, 'Husjakt', { settings: { hooks: { PreToolUse: [{ matcher: 'Bash', hooks: [{ type: 'command', command: 'x', onFailure: 'block' }] }] } } });
+  const { out } = build(base);
+  const built = JSON.parse(readFileSync(path.join(out, 'husjakt/hooks/hooks.json'), 'utf8'));
+  assert.equal(built.hooks.PreToolUse[0].hooks[0].onFailure, 'block');
+});
+
 test('en SessionStart som letar upp sin katalog via regel4-check följer med (ReseApotekets form)', () => {
   const find = 'f=$(ls "$CLAUDE_PROJECT_DIR"/.claude/hooks/regel4-check.mjs "$CLAUDE_PROJECT_DIR"/*/.claude/hooks/regel4-check.mjs 2>/dev/null | head -n1); [ -z "$f" ] || ';
   const hooks = convertHooks('/home/user/ReseApoteket', {
