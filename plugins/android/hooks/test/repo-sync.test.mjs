@@ -3,9 +3,10 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
-import { IMAGE_CLONE, run } from '../repo-sync.mjs';
+import { run } from '../repo-sync.mjs';
 
 const ENV_OK = { CLAUDE_CODE_SUBAGENT_MODEL: 'opus' };
+const SYNCED = '/root/.claude/plugins/synced/org_user/android';
 
 function setup({ settings } = {}) {
   const base = mkdtempSync(path.join(tmpdir(), 'rs-'));
@@ -23,7 +24,7 @@ function setup({ settings } = {}) {
 
 test('en spärr som saknas i miljöbilden läggs in och sägs en gång', () => {
   const { root, settingsFile } = setup({ settings: { model: 'opus', permissions: { deny: ['Bash(rm:*)'] } } });
-  const lines = run({ root, env: ENV_OK, settingsFile });
+  const lines = run({ root, env: ENV_OK, settingsFile, pluginRoot: SYNCED });
   assert.equal(lines.length, 1);
   assert.match(lines[0], /2 nya regler/);
   const s = JSON.parse(readFileSync(settingsFile, 'utf8'));
@@ -33,20 +34,20 @@ test('en spärr som saknas i miljöbilden läggs in och sägs en gång', () => {
   assert.equal(s.env, undefined, 'env skrivs inte av hooken');
   // andra gången är allt redan där: tyst och samma fil
   const text = readFileSync(settingsFile, 'utf8');
-  assert.deepEqual(run({ root, env: ENV_OK, settingsFile }), []);
+  assert.deepEqual(run({ root, env: ENV_OK, settingsFile, pluginRoot: SYNCED }), []);
   assert.equal(readFileSync(settingsFile, 'utf8'), text);
 });
 
 test('saknad inställningsfil skapas', () => {
   const { root, settingsFile } = setup();
-  assert.equal(run({ root, env: ENV_OK, settingsFile }).length, 1);
+  assert.equal(run({ root, env: ENV_OK, settingsFile, pluginRoot: SYNCED }).length, 1);
   assert.equal(JSON.parse(readFileSync(settingsFile, 'utf8')).permissions.ask.length, 1);
 });
 
 test('saknad standardmodell för agenter sägs, med var den ska läggas', () => {
   const { root, settingsFile } = setup();
-  run({ root, env: ENV_OK, settingsFile });
-  const lines = run({ root, env: {}, settingsFile });
+  run({ root, env: ENV_OK, settingsFile, pluginRoot: SYNCED });
+  const lines = run({ root, env: {}, settingsFile, pluginRoot: SYNCED });
   assert.equal(lines.length, 1);
   assert.match(lines[0], /CLAUDE_CODE_SUBAGENT_MODEL=opus/);
   assert.match(lines[0], /Environment variables/);
@@ -55,23 +56,23 @@ test('saknad standardmodell för agenter sägs, med var den ska läggas', () => 
 test('en rot utan repon ger inga spärrar och rör inte filen', () => {
   const base = mkdtempSync(path.join(tmpdir(), 'rs-'));
   const settingsFile = path.join(base, 'settings.json');
-  assert.deepEqual(run({ root: path.join(base, 'saknas'), env: ENV_OK, settingsFile }), []);
+  assert.deepEqual(run({ root: path.join(base, 'saknas'), env: ENV_OK, settingsFile, pluginRoot: SYNCED }), []);
   assert.throws(() => readFileSync(settingsFile));
 });
 
-test('pluginen ur miljöbildens klon sägs, med åtgärden', () => {
+test('pluginen som inte kommer från kontot sägs, med åtgärden', () => {
   const { root, settingsFile } = setup();
-  run({ root, env: ENV_OK, settingsFile });
-  const lines = run({ root, env: ENV_OK, settingsFile, pluginRoot: path.join(IMAGE_CLONE, 'plugins/android') });
-  assert.equal(lines.length, 1);
-  assert.match(lines[0], /miljöbilden/);
-  assert.match(lines[0], /repolista/);
+  run({ root, env: ENV_OK, settingsFile, pluginRoot: SYNCED });
+  for (const pluginRoot of ['/opt/claude-android/plugins/android', '/home/user/claude-android/plugins/android']) {
+    const lines = run({ root, env: ENV_OK, settingsFile, pluginRoot });
+    assert.equal(lines.length, 1);
+    assert.match(lines[0], /claude\.ai-kontot/);
+    assert.match(lines[0], /setup-skriptet/);
+  }
 });
 
-test('pluginen ur en färsk klon eller en liknande sökväg är tyst', () => {
+test('pluginen från kontot är tyst', () => {
   const { root, settingsFile } = setup();
-  run({ root, env: ENV_OK, settingsFile });
-  for (const pluginRoot of ['/home/user/claude-android/plugins/android', `${IMAGE_CLONE}-gren/plugins/android`]) {
-    assert.deepEqual(run({ root, env: ENV_OK, settingsFile, pluginRoot }), []);
-  }
+  run({ root, env: ENV_OK, settingsFile, pluginRoot: SYNCED });
+  assert.deepEqual(run({ root, env: ENV_OK, settingsFile, pluginRoot: SYNCED }), []);
 });
