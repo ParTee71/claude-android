@@ -1,6 +1,6 @@
 ---
 name: ci-budget
-description: Generell CI-budget för Android-repona (regel 5) — en PR kostar högst ca 8 Actions-minuter, instrumenttesterna bara när PR:en rör koden de testar, tester bara när deras kod ändrats, lint och release-bygge utanför PR-flödet. Ladda tillsammans med repots egen ci-budget (tabellen över vad som körs när) vid .github/workflows, Gradle-inställningar, nya beroenden, plugins, moduler eller testnivåer, och när CI är långsam. Trigger-ord: CI, GitHub Actions, workflow, android.yml, byggtid, Actions-minuter, cache, paths-filter, concurrency, emulator, lint, release-bygge, nytt beroende, budget.
+description: "Generell CI-budget för Android-repona (regel 5) — en PR kostar högst ca 8 Actions-minuter, instrumenttesterna bara när PR:en rör koden de testar, tester bara när deras kod ändrats, lint och release-bygge utanför PR-flödet. Ladda tillsammans med repots egen ci-budget (tabellen över vad som körs när) vid .github/workflows, Gradle-inställningar, nya beroenden, plugins, moduler eller testnivåer, och när CI är långsam. Trigger-ord: CI, GitHub Actions, workflow, android.yml, byggtid, Actions-minuter, cache, paths-filter, concurrency, emulator, lint, release-bygge, nytt beroende, budget."
 ---
 
 # CI-budget (generellt)

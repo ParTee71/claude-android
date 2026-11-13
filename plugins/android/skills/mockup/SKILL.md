@@ -1,6 +1,6 @@
 ---
 name: mockup
-description: Processregeln "mockup före ny GUI" — ny skärm, ny komponent eller tydligt ändrat utseende/beteende visas som en mockup (Design-canvas) för användaren och godkänns innan någon kod skrivs, för att slippa byggen och releaser bara för att se hur det blev. Ladda denna ALLTID innan du bygger eller ändrar något som syns. Trigger-ord: ny skärm, ny vy, ny flik, ny komponent, visa, mockup, skiss, design, prototyp, canvas, hur ska det se ut, layout, ändra utseendet, gör om skärmen, ny knapp, nytt kort, diagram, flöde, GUI, UI.
+description: "Processregeln \"mockup före ny GUI\" — ny skärm, ny komponent eller tydligt ändrat utseende/beteende visas som en mockup (Design-canvas) för användaren och godkänns innan någon kod skrivs, för att slippa byggen och releaser bara för att se hur det blev. Ladda denna ALLTID innan du bygger eller ändrar något som syns. Trigger-ord: ny skärm, ny vy, ny flik, ny komponent, visa, mockup, skiss, design, prototyp, canvas, hur ska det se ut, layout, ändra utseendet, gör om skärmen, ny knapp, nytt kort, diagram, flöde, GUI, UI."
 ---
 
 # Mockup före ny GUI

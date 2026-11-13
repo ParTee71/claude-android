@@ -23,7 +23,8 @@ function field(frontmatter, key) {
   if (/^[>|][+-]?$/.test(first)) return rest.join(first.startsWith('>') ? ' ' : '\n').trim();
   const value = [first, ...rest].filter(Boolean).join(' ');
   const quoted = value.match(/^(["'])([\s\S]*)\1$/);
-  return quoted ? quoted[2] : value;
+  if (!quoted) return value;
+  return quoted[1] === '"' ? quoted[2].replace(/\\(["\\])/g, '$1') : quoted[2].replaceAll("''", "'");
 }
 
 /** Texten Claude Code visar i skill-listan: description, och " - when_to_use" om den finns. */
@@ -45,14 +46,34 @@ export function measure(skillsDir) {
     .sort((a, b) => a.name.localeCompare(b.name));
 }
 
-/** Fel för beskrivningar över taket, relativt `root`. */
+/**
+ * Ett ociterat värde med ` #` eller `: ` läses fel: i giltig YAML är ` #` en kommentar och resten
+ * av beskrivningen försvinner, och `: ` gör frontmattern ogiltig, så att den bara råkar läsas rätt.
+ */
+export function unquotedProblem(skillMd) {
+  const m = skillMd.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) return null;
+  for (const key of ['description', 'when_to_use']) {
+    const line = m[1].split('\n').find((l) => l.startsWith(`${key}:`));
+    const value = line?.slice(key.length + 1).trim() ?? '';
+    if (/^["'>|]/.test(value)) continue;
+    if (value.includes(' #')) return `${key} är ociterad och innehåller " #" – resten läses som en YAML-kommentar; sätt värdet inom "…"`;
+    if (value.includes(': ')) return `${key} är ociterad och innehåller ": " – frontmattern blir ogiltig YAML; sätt värdet inom "…"`;
+  }
+  return null;
+}
+
+/** Fel för beskrivningar över taket eller ociterade värden som läses fel, relativt `root`. */
 export function check(root, skillsDir = path.join(root, '.claude/skills')) {
-  return measure(skillsDir)
+  const rel = (name) => path.relative(root, path.join(skillsDir, name, 'SKILL.md'));
+  const tooLong = measure(skillsDir)
     .filter((s) => s.length > MAX_DESCRIPTION)
-    .map(
-      (s) =>
-        `${path.relative(root, path.join(skillsDir, s.name, 'SKILL.md'))}: beskrivningen är ${s.length} tecken, taket är ${MAX_DESCRIPTION} – Claude Code kapar resten`,
-    );
+    .map((s) => `${rel(s.name)}: beskrivningen är ${s.length} tecken, taket är ${MAX_DESCRIPTION} – Claude Code kapar resten`);
+  const unquoted = measure(skillsDir)
+    .map((s) => ({ ...s, problem: unquotedProblem(readFileSync(path.join(skillsDir, s.name, 'SKILL.md'), 'utf8')) }))
+    .filter((s) => s.problem)
+    .map((s) => `${rel(s.name)}: ${s.problem}`);
+  return [...tooLong, ...unquoted];
 }
 
 /** Summan av beskrivningarnas längd, för utskriften. */

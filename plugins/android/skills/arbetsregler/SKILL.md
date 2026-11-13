@@ -1,6 +1,6 @@
 ---
 name: arbetsregler
-description: Mats gemensamma arbetsregler för alla projekt (Android-repona, android-ui, Husjakt, VeckansMat) – när en plan i ett issue och hans ok krävs före kod, när en tråd mergar själv, instabila tester, ärliga svar, modell efter jobbet, tider i svensk tid, tokentak och agenter. Ladda innan arbete påbörjas eller planeras, innan en PR skapas eller mergas, och när det är oklart om något kräver ett ok. Trigger-ord: fråga, bekräfta, driva igenom, en PR i taget, svenska, tid, klockslag, UTC, tokentak, pausa, agenter, parallellt, plan, issue, godkänd, plan-godkänd, kör, ok, liten ändring, merga, PR, får jag, vänta på ok, ärliga svar, modell, agent, instabilt test, flaky, omkörning, rött CI.
+description: "Mats gemensamma arbetsregler för alla projekt (Android-repona, android-ui, Husjakt, VeckansMat) – när en plan i ett issue och hans ok krävs före kod, när en tråd mergar själv, instabila tester, ärliga svar, modell efter jobbet, tider i svensk tid, tokentak och agenter. Ladda innan arbete påbörjas eller planeras, innan en PR skapas eller mergas, och när det är oklart om något kräver ett ok. Trigger-ord: fråga, bekräfta, driva igenom, en PR i taget, svenska, tid, klockslag, UTC, tokentak, pausa, agenter, parallellt, plan, issue, godkänd, plan-godkänd, kör, ok, liten ändring, merga, PR, får jag, vänta på ok, ärliga svar, modell, agent, instabilt test, flaky, omkörning, rött CI."
 ---
 
 # Gemensamma arbetsregler (alla Mats projekt)

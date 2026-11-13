@@ -1,6 +1,6 @@
 ---
 name: android-gradle-logic
-description: Use when setting up or refactoring Android Gradle build logic — convention plugins, composite builds, version catalogs, and shared build configuration across modules. Svenska trigger-ord: gradle, bygg, byggfil, beroende, lägga till bibliotek, versionskatalog, modul, plugin, byggtid, compileSdk, targetSdk, AGP, cpdCheck, Spotless.
+description: "Use when setting up or refactoring Android Gradle build logic — convention plugins, composite builds, version catalogs, and shared build configuration across modules. Svenska trigger-ord: gradle, bygg, byggfil, beroende, lägga till bibliotek, versionskatalog, modul, plugin, byggtid, compileSdk, targetSdk, AGP, cpdCheck, Spotless."
 ---
 
 # Android Gradle Build Logic

@@ -5,7 +5,7 @@ import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { MAX_DESCRIPTION, check, listingText, total } from '../check-skill-descriptions.mjs';
+import { MAX_DESCRIPTION, check, listingText, total, unquotedProblem } from '../check-skill-descriptions.mjs';
 
 const PLUGIN_SKILLS = path.join(path.dirname(fileURLToPath(import.meta.url)), '..', '..', 'skills');
 
@@ -33,6 +33,8 @@ test('when_to_use räknas in med avgränsaren, som i Claude Codes lista', () => 
 
 test('citerade värden och blockskalärer läses som text', () => {
   assert.equal(listingText('---\ndescription: "Citerad: text"\n---\n'), 'Citerad: text');
+  assert.equal(listingText('---\ndescription: "Säg \\"kör #N\\" nu"\n---\n'), 'Säg "kör #N" nu');
+  assert.equal(listingText("---\ndescription: 'Mats''s'\n---\n"), "Mats's");
   assert.equal(listingText('---\ndescription: >-\n  Första raden\n  andra raden.\nname: x\n---\n'), 'Första raden andra raden.');
 });
 
@@ -43,4 +45,14 @@ test('summan per repo', () => {
 
 test('pluginens egna skills håller taket', () => {
   assert.deepEqual(check(path.join(PLUGIN_SKILLS, '..'), PLUGIN_SKILLS), []);
+});
+
+test('ociterade värden med " #" eller ": " fälls, citerade och blockskalärer släpps', () => {
+  assert.match(unquotedProblem('---\ndescription: Använd vid kör #N.\n---\n'), /YAML-kommentar/);
+  assert.match(unquotedProblem('---\ndescription: Trigger-ord: test\n---\n'), /ogiltig YAML/);
+  assert.equal(unquotedProblem('---\ndescription: "Trigger-ord: kör #N"\n---\n'), null);
+  assert.equal(unquotedProblem('---\ndescription: >-\n  Trigger-ord: kör #N\n---\n'), null);
+  assert.equal(unquotedProblem('---\ndescription: Issue#4 och url:x\n---\n'), null);
+  const root = repo({ x: 'description: Använd vid kör #N.' });
+  assert.match(check(root).join(), /^\.claude\/skills\/x\/SKILL\.md: description är ociterad/);
 });
