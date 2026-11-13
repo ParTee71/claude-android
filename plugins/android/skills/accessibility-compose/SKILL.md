@@ -1,6 +1,6 @@
 ---
 name: accessibility-compose
-description: Tillgänglighet (a11y) i Compose-UI — appen ska fungera med TalkBack, stor text, färgblindhet och tillräckliga tryckytor. Ladda denna när du bygger eller ändrar UI: ikoner, knappar, klickbara ytor, bilder, kryssrader, kort, fält, steppers, sliders, progress, rader med belopp, diagram. Trigger-ord: tillgänglighet, accessibility, a11y, TalkBack, skärmläsare, contentDescription, semantics, mergeDescendants, stateDescription, touch target, tryckyta, dynamisk text, stor text, fontScale, kontrast, färgblind, belopp, procent, diagram.
+description: "Tillgänglighet (a11y) i Compose-UI — appen ska fungera med TalkBack, stor text, färgblindhet och tillräckliga tryckytor. Ladda denna när du bygger eller ändrar UI: ikoner, knappar, klickbara ytor, bilder, kryssrader, kort, fält, steppers, sliders, progress, rader med belopp, diagram. Trigger-ord: tillgänglighet, accessibility, a11y, TalkBack, skärmläsare, contentDescription, semantics, mergeDescendants, stateDescription, touch target, tryckyta, dynamisk text, stor text, fontScale, kontrast, färgblind, belopp, procent, diagram."
 ---
 
 # Tillgänglighet i Compose

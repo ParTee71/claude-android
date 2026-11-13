@@ -1,6 +1,6 @@
 ---
 name: ux-granskning
-description: Granskar en Android-skärm, mockup eller skärmdump för användbarhet, visuell hierarki, enhetlighet och UX-texter på svenska (knappar, felmeddelanden, tomma tillstånd, bekräftelser, statusord), och svarar i en kort tabell. Laddas vid granskning, inte när något ska skapas. Trigger-ord: granska skärmen, vad tycker du om, designkritik, UX, användbarhet, texten på knappen, knapptext, felmeddelandet, tomt tillstånd, bekräftelse, ordval, skärmdump, mockupen är klar, Roborazzi-skärmdumpar i PR:en.
+description: "Granskar en Android-skärm, mockup eller skärmdump för användbarhet, visuell hierarki, enhetlighet och UX-texter på svenska (knappar, felmeddelanden, tomma tillstånd, bekräftelser, statusord), och svarar i en kort tabell. Laddas vid granskning, inte när något ska skapas. Trigger-ord: granska skärmen, vad tycker du om, designkritik, UX, användbarhet, texten på knappen, knapptext, felmeddelandet, tomt tillstånd, bekräftelse, ordval, skärmdump, mockupen är klar, Roborazzi-skärmdumpar i PR:en."
 ---
 
 # UX-granskning

@@ -1,6 +1,6 @@
 ---
 name: firebase-auth
-description: Use when working with Firebase Authentication, Google Sign-In via Credential Manager, FirebaseUser, auth state, sign-out/credential clearing or google-services.json. Covers the CredentialManager + GetSignInWithGoogleOption pattern (replaces deprecated GoogleSignIn), a sign-in gate, the per-user bootstrap and work that should only run signed in. Svenska trigger-ord: inloggning, logga in, logga ut, konto, Google-konto, användare, uid, auth, Credential Manager, AuthRepository, AuthUser, SignInScreen, google-services.json, default_web_client_id, SHA-1.
+description: "Use when working with Firebase Authentication, Google Sign-In via Credential Manager, FirebaseUser, auth state, sign-out/credential clearing or google-services.json. Covers the CredentialManager + GetSignInWithGoogleOption pattern (replaces deprecated GoogleSignIn), a sign-in gate, the per-user bootstrap and work that should only run signed in. Svenska trigger-ord: inloggning, logga in, logga ut, konto, Google-konto, användare, uid, auth, Credential Manager, AuthRepository, AuthUser, SignInScreen, google-services.json, default_web_client_id, SHA-1."
 ---
 
 # Firebase Auth — Credential Manager Pattern

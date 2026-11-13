@@ -78,7 +78,7 @@ relativa länkar och nämnda skills och agenter finns, där `android:<namn>` lä
 Den kontrollerar också att `.claude/README.md` listar exakt repots skills och agenter, och att
 CI-tabellen i skill `ci-budget` (mellan `ci-table:start` och `ci-table:end`) har samma filter som
 `android.yml`, och att ingen skillbeskrivning (`description` plus `when_to_use`) är över Claude
-Codes tak på 1 536 tecken; summan per repo skrivs ut (#73, budgeten i DRIFT.md). Framåtreferenser står i repots `.github/scripts/link-allowlist.txt`.
+Codes tak på 1 536 tecken och att ett ociterat värde inte innehåller ` #` (läses som YAML-kommentar) eller `: ` (ogiltig YAML); summan per repo skrivs ut (#73, budgeten i DRIFT.md). Framåtreferenser står i repots `.github/scripts/link-allowlist.txt`.
 `checks/instrumented-paths.mjs` skriver filtret `instrumented` som git-pathspecs åt `release.yml`.
 Repots CI checkar ut claude-android (`plugins/android`) till `.claude-android` och kör båda därifrån.
 

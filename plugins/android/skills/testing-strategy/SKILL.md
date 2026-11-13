@@ -1,6 +1,6 @@
 ---
 name: testing-strategy
-description: Generell testregel för Android-repona (regel 2) — ingen beteendeändring utan tester på rätt nivå(er), befintliga tester uppdateras och tas aldrig bort, och flaky tester är buggar. Ladda tillsammans med repots egen testing-strategy (nivåer, hjälpare, kommandon) när du lägger till, ändrar eller fixar funktionalitet, en ViewModel, ett repository, en composable, en codec eller migrering, en hook eller en bugg. Trigger-ord: test, tester, testa, JUnit, MockK, Turbine, Robolectric, Roborazzi, skärmdump, screenshot, Konsist, cpdCheck, kontraktstest, fake, emulator, regression, flaky, instabil, täckning, TDD.
+description: "Generell testregel för Android-repona (regel 2) — ingen beteendeändring utan tester på rätt nivå(er), befintliga tester uppdateras och tas aldrig bort, och flaky tester är buggar. Ladda tillsammans med repots egen testing-strategy (nivåer, hjälpare, kommandon) när du lägger till, ändrar eller fixar funktionalitet, en ViewModel, ett repository, en composable, en codec eller migrering, en hook eller en bugg. Trigger-ord: test, tester, testa, JUnit, MockK, Turbine, Robolectric, Roborazzi, skärmdump, screenshot, Konsist, cpdCheck, kontraktstest, fake, emulator, regression, flaky, instabil, täckning, TDD."
 ---
 
 # Teststrategi (generellt)

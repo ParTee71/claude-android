@@ -1,6 +1,6 @@
 ---
 name: android-dev
-description: Baslinje för allt Android/Kotlin-arbete — arkitektur (MVVM, StateFlow<UiState>, Hilt, repository), plattformskrav (targetSdk, Material 3-versioner, Baseline Profile, ktlint, beroendeuppdateringar), att granska befintliga mönster först och att repots egna regler går före. Ladda alltid vid kod i en Android-app, tillsammans med mer specifika skills. Trigger-ord: Android, Kotlin, ViewModel, Hilt, Compose, Gradle, Firestore, Room, DataStore, targetSdk, Play, Baseline Profile, ktlint, Spotless, Renovate, Dependabot.
+description: "Baslinje för allt Android/Kotlin-arbete — arkitektur (MVVM, StateFlow<UiState>, Hilt, repository), plattformskrav (targetSdk, Material 3-versioner, Baseline Profile, ktlint, beroendeuppdateringar), att granska befintliga mönster först och att repots egna regler går före. Ladda alltid vid kod i en Android-app, tillsammans med mer specifika skills. Trigger-ord: Android, Kotlin, ViewModel, Hilt, Compose, Gradle, Firestore, Room, DataStore, targetSdk, Play, Baseline Profile, ktlint, Spotless, Renovate, Dependabot."
 ---
 
 # Senior Android Development Skills

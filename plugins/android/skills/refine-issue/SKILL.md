@@ -1,6 +1,6 @@
 ---
 name: refine-issue
-description: Göra en halvfärdig idé, en buggrapport eller ett önskemål till ett förfinat, planerat GitHub-issue i ett Android-repo – stommen i skill android:arbetsflode plus Android-delarna – kodgenomgång mot repots fem regler, återbruk, datakedjan, krav, version, mockup för ny GUI, Definition of Done och Agent · modell · effort. Repodetaljerna står i repots android-projekt. Use when the user wants to "create an issue", "update an issue", "plan a feature", "write up a bug", "refine this idea into a ticket". Trigger-ord: skapa issue, nytt issue, uppdatera issue, planera, förfina, skriv upp en bugg, idé, önskemål, ticket. Pairs with implement-issue.
+description: "Göra en halvfärdig idé, en buggrapport eller ett önskemål till ett förfinat, planerat GitHub-issue i ett Android-repo – stommen i skill android:arbetsflode plus Android-delarna – kodgenomgång mot repots fem regler, återbruk, datakedjan, krav, version, mockup för ny GUI, Definition of Done och Agent · modell · effort. Repodetaljerna står i repots android-projekt. Use when the user wants to \"create an issue\", \"update an issue\", \"plan a feature\", \"write up a bug\", \"refine this idea into a ticket\". Trigger-ord: skapa issue, nytt issue, uppdatera issue, planera, förfina, skriv upp en bugg, idé, önskemål, ticket. Pairs with implement-issue."
 ---
 
 # Förfina och planera ett issue i ett Android-repo

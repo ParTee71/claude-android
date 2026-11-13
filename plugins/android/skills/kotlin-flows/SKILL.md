@@ -1,6 +1,6 @@
 ---
 name: kotlin-flows
-description: Use when working with Flow, StateFlow, SharedFlow, or Channel in Kotlin — including cold vs hot stream decisions, operator chains, lifecycle-safe collection, UI state management, callback bridging, or Channel migration in Android or KMP projects. Svenska trigger-ord: flöde, flow, StateFlow, tillstånd, UiState, kombinera, uppdateras inte, lyssnare, snapshot, realtid.
+description: "Use when working with Flow, StateFlow, SharedFlow, or Channel in Kotlin — including cold vs hot stream decisions, operator chains, lifecycle-safe collection, UI state management, callback bridging, or Channel migration in Android or KMP projects. Svenska trigger-ord: flöde, flow, StateFlow, tillstånd, UiState, kombinera, uppdateras inte, lyssnare, snapshot, realtid."
 ---
 
 # Kotlin Flows

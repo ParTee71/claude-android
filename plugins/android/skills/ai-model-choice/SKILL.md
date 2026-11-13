@@ -1,6 +1,6 @@
 ---
 name: ai-model-choice
-description: Modellval för Claude i alla Mats projekt (Android-repona, android-ui, Husjakt, VeckansMat) – Opus 5.5 som standard, Fable 5.2 bara när uppgiften kräver det och då med Medium/High effort. Ladda när arbete planeras, när modell eller effort väljs för sessionen, en agent eller ett issues Agent · modell · effort, och före en dyr uppgift (stor refaktorering, flera agenter, lång session). Trigger-ord: modell, modellval, effort, Opus, Fable, Sonnet, Haiku, /model, dyrt, kostnad, tokens, Agent · modell · effort.
+description: "Modellval för Claude i alla Mats projekt (Android-repona, android-ui, Husjakt, VeckansMat) – Opus 5.5 som standard, Fable 5.2 bara när uppgiften kräver det och då med Medium/High effort. Ladda när arbete planeras, när modell eller effort väljs för sessionen, en agent eller ett issues Agent · modell · effort, och före en dyr uppgift (stor refaktorering, flera agenter, lång session). Trigger-ord: modell, modellval, effort, Opus, Fable, Sonnet, Haiku, /model, dyrt, kostnad, tokens, Agent · modell · effort."
 ---
 
 # Modellval för Claude (läge november 2026)

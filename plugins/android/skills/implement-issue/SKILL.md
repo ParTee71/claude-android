@@ -1,6 +1,6 @@
 ---
 name: implement-issue
-description: Genomföra ett GitHub-issue, en bugg, en funktion eller ett underhållsjobb i ett Android-repo från issue till mergad PR – stommen i skill android:arbetsflode plus Android-delarna – mockup för ny GUI, återbruk av delade delar och android-ui, implementera med tester på varje nivå, datakedjan, höj versionen, android:granskare och /code-review, emulatortesterna. Repodetaljerna står i repots android-projekt. Use when the user wants to "implement issue #N", "fix this bug", "build this feature", "do this ticket", "pick up #N", or hands off from refine-issue. Trigger-ord: genomför, implementera, kör #N, kör nästa, driv på, fixa buggen, bygg funktionen, ta issue, PR.
+description: "Genomföra ett GitHub-issue, en bugg, en funktion eller ett underhållsjobb i ett Android-repo från issue till mergad PR – stommen i skill android:arbetsflode plus Android-delarna – mockup för ny GUI, återbruk av delade delar och android-ui, implementera med tester på varje nivå, datakedjan, höj versionen, android:granskare och /code-review, emulatortesterna. Repodetaljerna står i repots android-projekt. Use when the user wants to \"implement issue #N\", \"fix this bug\", \"build this feature\", \"do this ticket\", \"pick up #N\", or hands off from refine-issue. Trigger-ord: genomför, implementera, kör #N, kör nästa, driv på, fixa buggen, bygg funktionen, ta issue, PR."
 ---
 
 # Genomföra ett issue i ett Android-repo
