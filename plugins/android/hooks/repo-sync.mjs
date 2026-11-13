@@ -12,31 +12,42 @@
 // agenter måste därför ligga som variabel i molnmiljöns inställningar; hooken säger till när den
 // saknas.
 //
-// I ett projekt utan claude-android i repolistan klonar setup-skriptet pluginen till
-// `/opt/claude-android`, som ligger i miljöbilden och inte följer med en merge (#69). Ett `git pull`
-// här hjälper inte: skillernas innehåll läses in vid sessionsstart (prövat 2026-11-12), och nästa
-// tråd startar från bilden igen. Hooken säger därför bara till, med åtgärden.
+// Pluginen ska komma från claude.ai-kontot (`android@synced`, #69): den synkas från GitHub och når
+// varje ny tråd, medan en kopia som setup-skriptet installerat ligger i miljöbilden och blir gammal.
+// En installerad kopia har dessutom företräde framför kontots. Hooken säger därför till när
+// pluginen läses från något annat ställe än kontots synkade kopia.
 //
 // Bara i molnet (CLAUDE_CODE_REMOTE). Tyst när inget ändrats. Stoppar aldrig sessionen.
 
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { homedir } from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 import { logBesked } from './log.mjs';
 
-// Skriptet ligger bredvid pluginen i claude-android-klonen. En plugin som installerats som kopia
-// (utanför molnet) har det inte; då gör hooken ingenting.
-/** Setup-skriptets klon när claude-android inte står i projektets repolista. */
-export const IMAGE_CLONE = '/opt/claude-android';
+// Spärrarna läses med funktionerna i claude-androids `scripts/repo-plugins.mjs`. Kontots kopia av
+// pluginen har bara pluginmappen, så skriptet söks också i setup-skriptets klon. Finns ingen klon
+// (utanför molnet) gör hooken ingenting med spärrarna.
 const PLUGIN_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
+export const SCRIPT_CANDIDATES = [
+  path.resolve(PLUGIN_ROOT, '../../scripts/repo-plugins.mjs'),
+  '/home/user/claude-android/scripts/repo-plugins.mjs',
+  '/opt/claude-android/scripts/repo-plugins.mjs',
+];
 
 let lib = null;
-try {
-  lib = await import('../../../scripts/repo-plugins.mjs');
-} catch {
-  // ingen klon bredvid pluginen
+for (const file of SCRIPT_CANDIDATES) {
+  if (!existsSync(file)) continue;
+  try {
+    lib = await import(pathToFileURL(file).href);
+    break;
+  } catch {
+    // nästa kandidat
+  }
 }
+
+/** Kommer pluginen från claude.ai-kontot (`~/.claude/plugins/synced/…`)? */
+export const isSynced = (root) => root.split(path.sep).join('/').includes('/.claude/plugins/synced/');
 
 function rules(file) {
   try {
@@ -57,10 +68,10 @@ export function run({
   if (!lib) return [];
   const { collectPermissions, DEFAULT_ENV, mergeSettings } = lib;
   const lines = [];
-  if (pluginRoot === IMAGE_CLONE || pluginRoot.startsWith(IMAGE_CLONE + path.sep)) {
+  if (!isSynced(pluginRoot)) {
     lines.push(
-      `Pluginen läses ur ${IMAGE_CLONE}, som ligger i miljöbilden – mergade ändringar i claude-android når inte den här tråden. ` +
-        'Lägg partee71/claude-android i projektets repolista och bygg om bilden (claude-android README → Installation).',
+      `Pluginen läses ur ${pluginRoot}, inte från claude.ai-kontot – en kopia som setup-skriptet installerat har företräde och blir gammal. ` +
+        'Byt setup-skriptet i Claude-miljön mot blocket i claude-android README → Installation, och lägg till pluginen android på kontot (Customize → Plugins).',
     );
   }
   const perms = collectPermissions(root);
