@@ -77,6 +77,7 @@ grenen, state `all`, och `pull_request_read`). Lita aldrig på ett antagande ell
 ### 2. Bygg – tester samtidigt, inte efter
 
 - **Bugg:** ett test som faller först, sedan minsta ändringen som gör det grönt. Utöka inte omfånget.
+  Syns inte orsaken efter en första läsning: `felsokning`.
 - **Funktion:** följ befintliga mönster; delat först (egen commit), funktionen ovanpå.
 - **Version:** ändrar PR:en appen höjs versionen i samma PR (repots release-skill); en ren
   dokument-, test- eller CI-ändring höjer inte.
@@ -133,8 +134,8 @@ Kan du inte köra den är du inte klar.
   en konflikt. Version och ändringslogg: ta basens som de är och tillämpa
   versionsregeln på nytt; höj bara om PR:en är allvarligare. Kod: lös bara när båda sidornas
   avsikt är tydlig, annars fråga Mats med filerna och vad som krockar. Kör kontrollerna, pusha.
-- **Rött CI** → repots ci-doktor diagnostiserar; rätta grundorsaken och pusha. Kör aldrig bara
-  om. En omkörning startas först när hela körningen är klar (ett jobb som går kvar gör att en
+- **Rött CI** → repots ci-doktor diagnostiserar; rätta grundorsaken (svår att hitta: `felsokning`)
+  och pusha. Kör aldrig bara om. En omkörning startas först när hela körningen är klar (ett jobb som går kvar gör att en
   omkörning mitt i slutar i `startup_failure`), och bara när orsaken är åtgärdad utanför koden.
 - **Merge:** när alla kontroller på senaste commit är gröna (ett hoppat jobb är okej, rött eller
   avbrutet inte) och `mergeable_state` inte är `dirty`, mergar tråden själv enligt
