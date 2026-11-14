@@ -3,7 +3,7 @@
 Gemensam Claude Code-plugin för Mats projekt. Det mesta är för Android-repona
 ReseApoteket, Dagboken, fonder och biblioteket android-ui: Kotlin, Compose, Navigation 3 och
 arbetssättet kring issues och PR:er. Några delar gäller alla repon, också Husjakt och
-VeckansMat: arbetsreglerna (`arbetsregler`), arbetsflödets stomme (`arbetsflode`), modellvalet (`ai-model-choice`), uppsättningen för projekttrådar
+VeckansMat: arbetsreglerna (`arbetsregler`), arbetsflödets stomme (`arbetsflode`), felsökningen (`felsokning`), modellvalet (`ai-model-choice`), uppsättningen för projekttrådar
 (`scripts/repo-plugins.mjs`, `repo-hook.mjs`) och sessionsstartens kontroll (`setup-check`). Det som är eget för ett repo stannar i repots `.claude/`, och där
 de krockar gäller repots CLAUDE.md.
 
@@ -29,6 +29,7 @@ Skillsen anropas som `android:<namn>`.
 | `refine-issue` | Android-delarna ovanpå `arbetsflode`: kodgenomgång mot de fem reglerna, Definition of Done, rubrikerna Återbruk, Datasäkerhet och Krav. |
 | `implement-issue` | Android-delarna ovanpå `arbetsflode`: mockup, återbruk och android-ui, datakedjan, versionshöjning, `android:granskare`, emulatortesterna. |
 | `arbetsregler` | Gemensamma arbetsregler för alla Mats projekt: plan i issue och ok bara för större ändringar, små direkt till PR, ärliga svar, agenter med egen modell, driva igenom utan bekräftelsefrågor, en PR i taget, tider i svensk tid, tokentak och agenter vid behov. Enda källan – repons CLAUDE.md länkar hit. |
+| `felsokning` | Metod för fel som är svåra att hitta, i alla Mats repon: ett kommando som blir rött först, krympa, hypoteser med förutsägelser, mäta en sak i taget, regressionstest före rättningen. Efter Matt Pococks `diagnosing-bugs` (MIT). |
 | `ai-model-choice` | Modellval för sessioner, agenter och issues i alla Mats projekt: Opus 5.5 som standard, Fable 5.2 bara med skäl och medium/high effort. Enda källan – repons CLAUDE.md länkar hit. |
 | `release` | Versionshöjningen i funktions-PR:en och releasen via `workflow_dispatch`, utan fråga om versionsnumret. |
 | `testing-strategy` | Regel 2 generellt: tester på varje berörd nivå, flaky är en bugg, skärmdumpar, mönster och fallgropar. Repots `testing-strategy` har nivåtabellen, hjälparna och kommandona. |

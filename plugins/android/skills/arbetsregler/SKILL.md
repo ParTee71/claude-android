@@ -52,7 +52,8 @@ Ett test som ibland faller utan att koden ändrats kostar en körning varje gån
 - **Fråga Mats om ett issue ska skrivas för att göra testet stabilt.** Säger han ja: skriv
   issuet med belägget, en trolig orsak (märkt som obevisad) och vad som ska rättas. Gör testet
   deterministiskt, eller rätta appen om felet ligger där. Ett test får aldrig tas bort, hoppas
-  över eller försvagas.
+  över eller försvagas. Orsaken jagas lokalt med `felsokning` (höj felfrekvensen tills felet går
+  att jaga).
 - Föll testet i en PR som inte rör koden det testar: säg det i PR:en, med en länk till issuet.
   Mats avgör om PR:en får vänta på rättningen.
 
